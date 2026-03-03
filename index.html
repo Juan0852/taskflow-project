@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>IntelliJ Project - Juan Montero CV</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <header class="main-window-header">
+        <div class="window-controls">
+            <span class="dot red" onclick="alert('Sistema operativo: MonteroOS v1.0')"></span>
+            <span class="dot yellow"></span>
+            <span class="dot green"></span>
+        </div>
+        <div class="projectAndGit">
+            <div class="routes">
+                <img src="P.png" alt="P" class="imageRouteProject">
+                <span>ProjectCV-JuanMontero ▼</span>
+            </div>
+            <div class="gitBranch">
+                <img src="pullRequest.png" alt="Git" class="imageGitBranch">
+                <span>Feature/Develop</span>
+            </div>
+        </div>
+        <div class="ide-title">IntelliJ IDEA - Juan Montero CV</div>
+    </header>
+
+    <div class="main-layout">
+        <aside class="tool-window-strip">
+            <img src="Folder.png" alt="project" class="tool-icon active">
+            <img src="Commit.png" alt="commit" class="tool-icon">
+            <img src="Structure.png" alt="structure" class="tool-icon">
+            <img src="More.png" alt="more" class="tool-icon">
+        </aside>
+
+        <aside class="project-view">
+            <div class="closer-project-view">
+                <ul class="file-tree">
+                    <li class="tree-item">
+                        <img src="https://cdn-icons-png.flaticon.com/512/716/716784.png" class="icon">
+                        <span>src/main/java</span>
+                    </li>
+                    
+                    <a href="#controller-file" class="file-link">
+                        <li class="tree-item indent-2">
+                            <img src="https://cdn-icons-png.flaticon.com/512/5968/5968282.png" class="icon">
+                            <span>JuanMonteroController.java</span>
+                        </li>
+                    </a>
+
+                    <a href="#experience-file" class="file-link">
+                        <li class="tree-item indent-2">
+                            <img src="https://cdn-icons-png.flaticon.com/512/5968/5968282.png" class="icon">
+                            <span>Experience.java</span>
+                        </li>
+                    </a>
+
+                    <a href="#docker-file" class="file-link">
+                        <li class="tree-item indent-1">
+                            <img src="https://cdn-icons-png.flaticon.com/512/919/919830.png" class="icon">
+                            <span>Dockerfile</span>
+                        </li>
+                    </a>
+                </ul>
+            </div>
+        </aside>
+
+        <main class="code-editor">
+            <div class="editor-canvas">
+                
+                <section id="controller-file" class="code-page">
+    <div class="tabs">JuanMonteroController.java ✕</div>
+    <pre><code>
+<span class="annotation">@RestController</span>
+<span class="annotation">@RequestMapping</span>(<span class="string">"/api/v1/profile"</span>)
+<span class="keyword">public class</span> <span class="class-name">JuanMonteroController</span> {
+
+    <span class="comment">// Perfil: Proactivo y orientado a arquitecturas MVVM / MVC</span>
+    <span class="annotation">@GetMapping</span>(<span class="string">"/summary"</span>)
+    <span class="keyword">public</span> ResponseEntity&lt;Map&lt;String, Object&gt;&gt; <span class="method">getAboutMe</span>() {
+        <span class="keyword">return</span> ResponseEntity.ok(Map.of(
+            <span class="string">"full_name"</span>, <span class="string">"Juan José Montero"</span>,
+            <span class="string">"education"</span>, <span class="string">"DAM - CEAC FP (España)"</span>,
+            <span class="string">"certifications"</span>, List.of(<span class="string">"Java W3Schools"</span>, <span class="string">"REBT Electricista"</span>),
+            <span class="string">"languages"</span>, <span class="string">"Spanish (Native), English (B1-B2)"</span>
+        ));
+    }
+
+    <span class="annotation">@GetMapping</span>(<span class="string">"/tech-stack"</span>)
+    <span class="keyword">public</span> List&lt;String&gt; <span class="method">getHardSkills</span>() {
+        <span class="keyword">return</span> List.of(
+            <span class="string">"Android Studio (Jetpack Compose)"</span>, 
+            <span class="string">"Spring Boot"</span>, <span class="string">"MySQL"</span>, 
+            <span class="string">"GitFlow (Ramas/PRs)"</span>, <span class="string">"JWT & Figma"</span>
+        );
+    }
+}</code></pre>
+</section>
+
+<section id="experience-file" class="code-page">
+    <div class="tabs">Experience.java ✕</div>
+    <pre><code>
+<span class="keyword">public class</span> <span class="class-name">Experience</span> {
+
+    <span class="comment">/**
+     * Teleperformance Colombia (2021-2022)
+     * Rol: Soporte Técnico / Atención al Cliente
+     */</span>
+    <span class="keyword">public void</span> <span class="method">getTeleperformanceDetails</span>() {
+        String campaign = <span class="string">"Semibilingüe (Español/Inglés)"</span>;
+        String[] responsibilities = {
+            <span class="string">"Resolución de incidencias técnicas"</span>,
+            <span class="string">"Diagnóstico y análisis de problemas"</span>,
+            <span class="string">"Atención bajo métricas de calidad"</span>
+        };
+        
+        <span class="keyword">boolean</span> isEnglishUsed = <span class="keyword">true</span>;
+        System.out.println(<span class="string">"Soft Skills: Comunicación asertiva y resiliencia"</span>);
+    }
+}</code></pre>
+</section>
+
+                <section id="experience-file" class="code-page">
+                    <div class="tabs active-tab">Experience.java ✕</div>
+                    <pre><code>
+<span class="keyword">public class</span> <span class="class-name">Experience</span> {
+    <span class="keyword">public void</span> <span class="method">teleperformance</span>() {
+        String role = <span class="string">"Soporte Técnico / Atención al Cliente"</span>;
+        <span class="comment">// Campaña semibilingüe y resolución de incidencias</span>
+        <span class="keyword">int</span> months = <span class="number">6</span>;
+    }
+}</code></pre>
+                <section id="docker-file" class="code-page">
+    <div class="tabs">Dockerfile ✕</div>
+    <pre><code>
+<span class="keyword">FROM</span> openjdk:17-jdk-alpine
+
+<span class="comment"># ---------------------------------------------------------
+# ¿Qué haces acá? 🕵️‍♂️ 
+# Devuélvete a la experiencia, aquí no hay nada para ti.
+# Solo archivos binarios y café frío.
+# ---------------------------------------------------------</span>
+
+<span class="keyword">LABEL</span> maintainer=<span class="string">"Juan Montero &lt;juan_mm_jose@hotmail.com&gt;"</span>
+
+<span class="keyword">WORKDIR</span> /app
+<span class="keyword">COPY</span> target/cv-backend.jar app.jar
+
+<span class="comment"># Comando especial para intrusos</span>
+<span class="keyword">RUN</span> echo <span class="string">"Acceso denegado. Redirigiendo a Experience.java..."</span>
+
+<span class="keyword">ENTRYPOINT</span> [<span class="string">"java"</span>, <span class="string">"-jar"</span>, <span class="string">"/app.jar"</span>]
+    </code></pre>
+</section>
+</body>
+</html>
