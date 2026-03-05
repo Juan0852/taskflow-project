@@ -1,37 +1,40 @@
 <!DOCTYPE html>
 <html lang="es">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>IntelliJ Project - Juan Montero CV</title>
+    <title>BiTask - Oso de Anteojos Edition</title>
     <link rel="stylesheet" href="style.css">
 </head>
+
 <body>
     <header class="main-window-header">
         <div class="window-controls">
-            <span class="dot red" onclick="alert('Sistema operativo: MonteroOS v1.0')"></span>
-            <span class="dot yellow"></span>
+            <span class="dot red" onclick="alert('¿Qué haces? Ponte a trabajar...')"></span>
+            <span class="dot yellow" onclick="alert('¿De nuevo tú?')"></span>
             <span class="dot green"></span>
         </div>
         <div class="projectAndGit">
             <div class="routes">
-                <img src="P.png" alt="P" class="imageRouteProject">
-                <span>ProjectCV-JuanMontero ▼</span>
+                <img src="/assets/LogoBiTask.png" alt="P" class="imageRouteProject">
+                <span> BiTask - Task Manager ▼</span>
             </div>
             <div class="gitBranch">
-                <img src="pullRequest.png" alt="Git" class="imageGitBranch">
-                <span>Feature/Develop</span>
+                <img src="/assets/PullRequest.png" alt="Git" class="imageGitBranch">
+                <span>feature/develop</span>
             </div>
         </div>
-        <div class="ide-title">IntelliJ IDEA - Juan Montero CV</div>
+        <div class="ide-title">BiTask IDE v1.0 [Oso de Anteojos]</div>
     </header>
 
     <div class="main-layout">
         <aside class="tool-window-strip">
-            <img src="Folder.png" alt="project" class="tool-icon active">
-            <img src="Commit.png" alt="commit" class="tool-icon">
-            <img src="Structure.png" alt="structure" class="tool-icon">
-            <img src="More.png" alt="more" class="tool-icon">
+            <img src="/assets/Folder.png" id="tool-project" alt="Project Files" class="tool-icon active">
+            <img src="/assets/Commit.png" id="tool-git" alt="Git Commits" class="tool-icon">
+            <img src="/assets/Structure.png" id="tool-structure" alt="Code Structure" class="tool-icon">
+            <img src="/assets/More.png" id="tool-settings" alt="Settings" class="tool-icon">
+            <img src="/assets/Terminal.png" id="tool-terminal" alt="Terminal" class="tool-icon">
         </aside>
 
         <aside class="project-view">
@@ -39,23 +42,20 @@
                 <ul class="file-tree">
                     <li class="tree-item">
                         <img src="https://cdn-icons-png.flaticon.com/512/716/716784.png" class="icon">
-                        <span>src/main/java</span>
+                        <span>src/main/java/com/bitask</span>
                     </li>
-                    
                     <a href="#controller-file" class="file-link">
                         <li class="tree-item indent-2">
                             <img src="https://cdn-icons-png.flaticon.com/512/5968/5968282.png" class="icon">
-                            <span>JuanMonteroController.java</span>
+                            <span>TaskController.java</span>
                         </li>
                     </a>
-
-                    <a href="#experience-file" class="file-link">
+                    <a href="#kanban-file" class="file-link">
                         <li class="tree-item indent-2">
                             <img src="https://cdn-icons-png.flaticon.com/512/5968/5968282.png" class="icon">
-                            <span>Experience.java</span>
+                            <span>KanbanBoard.java</span>
                         </li>
                     </a>
-
                     <a href="#docker-file" class="file-link">
                         <li class="tree-item indent-1">
                             <img src="https://cdn-icons-png.flaticon.com/512/919/919830.png" class="icon">
@@ -67,91 +67,69 @@
         </aside>
 
         <main class="code-editor">
-            <div class="editor-canvas">
-                
+            <div class="editor-canvas" id="editor-display">
                 <section id="controller-file" class="code-page">
-    <div class="tabs">JuanMonteroController.java ✕</div>
-    <pre><code>
-<span class="annotation">@RestController</span>
-<span class="annotation">@RequestMapping</span>(<span class="string">"/api/v1/profile"</span>)
-<span class="keyword">public class</span> <span class="class-name">JuanMonteroController</span> {
+                    <div class="tabs">TaskController.java ✕</div>
 
-    <span class="comment">// Perfil: Proactivo y orientado a arquitecturas MVVM / MVC</span>
-    <span class="annotation">@GetMapping</span>(<span class="string">"/summary"</span>)
-    <span class="keyword">public</span> ResponseEntity&lt;Map&lt;String, Object&gt;&gt; <span class="method">getAboutMe</span>() {
-        <span class="keyword">return</span> ResponseEntity.ok(Map.of(
-            <span class="string">"full_name"</span>, <span class="string">"Juan José Montero"</span>,
-            <span class="string">"education"</span>, <span class="string">"DAM - CEAC FP (España)"</span>,
-            <span class="string">"certifications"</span>, List.of(<span class="string">"Java W3Schools"</span>, <span class="string">"REBT Electricista"</span>),
-            <span class="string">"languages"</span>, <span class="string">"Spanish (Native), English (B1-B2)"</span>
-        ));
-    }
+                    <div class="controller-toolbar">
+                        <button id="btn-add-gui" class="gui-btn add">+ New Task</button>
+                        <button id="btn-clear-gui" class="gui-btn delete">🗑 Clear All</button>
+                        <span class="file-info">// java.util.List&lt;Task&gt; storage</span>
+                    </div>
 
-    <span class="annotation">@GetMapping</span>(<span class="string">"/tech-stack"</span>)
-    <span class="keyword">public</span> List&lt;String&gt; <span class="method">getHardSkills</span>() {
-        <span class="keyword">return</span> List.of(
-            <span class="string">"Android Studio (Jetpack Compose)"</span>, 
-            <span class="string">"Spring Boot"</span>, <span class="string">"MySQL"</span>, 
-            <span class="string">"GitFlow (Ramas/PRs)"</span>, <span class="string">"JWT & Figma"</span>
-        );
-    }
-}</code></pre>
-</section>
+                    <div id="gui-add-panel" class="form-add-panel" style="display: none;">
+                        <div class="add-panel-body">
+                            <input type="text" id="gui-task-name" placeholder="Task description..."
+                                class="add-panel-input">
 
-<section id="experience-file" class="code-page">
-    <div class="tabs">Experience.java ✕</div>
-    <pre><code>
-<span class="keyword">public class</span> <span class="class-name">Experience</span> {
+                            <select id="gui-task-priority" class="add-panel-select">
+                                <option value="baja">Low</option>
+                                <option value="media" selected>Medium</option>
+                                <option value="alta">High</option>
+                            </select>
+                        </div>
+                        <div class="add-panel-footer">
+                            <button id="btn-confirm-add" class="add-panel-btn-confirm">Add Task</button>
+                            <button id="btn-cancel-add" class="add-panel-btn-cancel">Cancel</button>
+                        </div>
+                    </div>
 
-    <span class="comment">/**
-     * Teleperformance Colombia (2021-2022)
-     * Rol: Soporte Técnico / Atención al Cliente
-     */</span>
-    <span class="keyword">public void</span> <span class="method">getTeleperformanceDetails</span>() {
-        String campaign = <span class="string">"Semibilingüe (Español/Inglés)"</span>;
-        String[] responsibilities = {
-            <span class="string">"Resolución de incidencias técnicas"</span>,
-            <span class="string">"Diagnóstico y análisis de problemas"</span>,
-            <span class="string">"Atención bajo métricas de calidad"</span>
-        };
-        
-        <span class="keyword">boolean</span> isEnglishUsed = <span class="keyword">true</span>;
-        System.out.println(<span class="string">"Soft Skills: Comunicación asertiva y resiliencia"</span>);
-    }
-}</code></pre>
-</section>
+                    <div class="code-content">
+                        <div id="task-list-container" class="task-list">
+                            <p class="empty-msg">// No tasks found. Use 'bitask add' or the button above.</p>
+                        </div>
+                    </div>
+                </section>
 
-                <section id="experience-file" class="code-page">
-                    <div class="tabs active-tab">Experience.java ✕</div>
-                    <pre><code>
-<span class="keyword">public class</span> <span class="class-name">Experience</span> {
-    <span class="keyword">public void</span> <span class="method">teleperformance</span>() {
-        String role = <span class="string">"Soporte Técnico / Atención al Cliente"</span>;
-        <span class="comment">// Campaña semibilingüe y resolución de incidencias</span>
-        <span class="keyword">int</span> months = <span class="number">6</span>;
-    }
-}</code></pre>
-                <section id="docker-file" class="code-page">
-    <div class="tabs">Dockerfile ✕</div>
-    <pre><code>
-<span class="keyword">FROM</span> openjdk:17-jdk-alpine
+                <section id="kanban-file" class="code-page" style="display:none;">
+                    <div class="tabs">KanbanBoard.java ✕</div>
+                    <div class="kanban-board" id="kanban-display"></div>
+                </section>
 
-<span class="comment"># ---------------------------------------------------------
-# ¿Qué haces acá? 🕵️‍♂️ 
-# Devuélvete a la experiencia, aquí no hay nada para ti.
-# Solo archivos binarios y café frío.
-# ---------------------------------------------------------</span>
+                <section id="docker-file" class="code-page" style="display:none;">
+                    <div class="tabs">Dockerfile ✕</div>
+                    <pre><code><span class="keyword">FROM</span>...</code></pre>
+                </section>
+            </div>
 
-<span class="keyword">LABEL</span> maintainer=<span class="string">"Juan Montero &lt;juan_mm_jose@hotmail.com&gt;"</span>
+            <section id="terminal-file" class="terminal-window">
+                <div class="tabs">Terminal Logs ✕</div>
+                <div class="log-output" id="terminal-logs-display">
+                    <span class="info">INFO</span> - BiTask Kernel v1.0 [Oso de Anteojos] loaded. <br>
+                    <span class="success">SUCCESS</span> - Andean Bear region: Colombia. Ready.
+                </div>
+                <div class="terminal-input-line">
+                    <span class="prompt" style="color:var(--string-color); padding-left:10px;">bitask@colombia:~$</span>
+                    <input type="text" id="cli-input" autocomplete="off">
+                </div>
+            </section>
+        </main>
+    </div>
+    <script src="js/task-service.js"></script>
+    <script src="js/commands.js"></script>
+    <script src="js/ui-manager.js"></script>
+    <script src="js/terminal-core.js"></script>
+    <script src="js/shortcuts.js"></script>
+    <script src="js/app.js"></script>
 
-<span class="keyword">WORKDIR</span> /app
-<span class="keyword">COPY</span> target/cv-backend.jar app.jar
-
-<span class="comment"># Comando especial para intrusos</span>
-<span class="keyword">RUN</span> echo <span class="string">"Acceso denegado. Redirigiendo a Experience.java..."</span>
-
-<span class="keyword">ENTRYPOINT</span> [<span class="string">"java"</span>, <span class="string">"-jar"</span>, <span class="string">"/app.jar"</span>]
-    </code></pre>
-</section>
-</body>
 </html>
