@@ -5,7 +5,7 @@
 const TaskService = {
     // 1. CARGA INICIAL
     _tasks: JSON.parse(localStorage.getItem('bitask_db')) || [],
-    
+
     // Recuperamos el último ID usado o empezamos en 0
     _lastId: parseInt(localStorage.getItem('bitask_last_id')) || 0,
 
@@ -22,7 +22,7 @@ const TaskService = {
     add(text, priority) {
         // Incrementamos el contador global
         this._lastId++;
-        
+
         const newTask = {
             id: this._lastId, // ID simple: 1, 2, 3...
             text: text,
@@ -42,10 +42,10 @@ const TaskService = {
     delete(id) {
         const initialLength = this._tasks.length;
         this._tasks = this._tasks.filter(t => t.id !== id);
-        
+
         const success = this._tasks.length < initialLength;
         if (success) this._save();
-        
+
         return success;
     },
 
@@ -78,5 +78,10 @@ const TaskService = {
     _save() {
         localStorage.setItem('bitask_db', JSON.stringify(this._tasks));
         localStorage.setItem('bitask_last_id', this._lastId.toString());
+    },
+
+    clearAll() {
+        this._tasks = [];
+        this._save();
     }
 };

@@ -1,22 +1,86 @@
 /* 1. CONFIGURACIÓN GLOBAL Y VARIABLES */
 :root {
+    /* ============================= */
+    /* PALETA DARK (legacy / actual) */
+    /* ============================= */
+
+    /* Dark: Fondos y bordes principales */
     --darcula-bg: #2b2b2b;
     --darcula-sidebar: #3c3f41;
     --darcula-editor: #2b2b2b;
-    --darcula-text: #a9b7c6;
+    --darcula-tool-bg: #313335;
+    --darcula-hover: #4e5254;
     --darcula-border: #515151;
+    --darcula-border-light: #646464;
 
-    /* Colores Sintaxis */
+    /* Dark: Textos */
+    --darcula-text: #a9b7c6;
+    --darcula-text-muted: #7a7a7a;
+    --darcula-text-light: #bbbbbb;
+    --darcula-text-white: #ffffff;
+
+    /* Dark: Botones y formularios */
+    --darcula-btn-bg: #3c3f41;
+    --darcula-btn-hover: #4b5052;
+    --darcula-btn-border: #5e6466;
+
+    /* Dark: Azules de UI */
+    --darcula-blue-bg: #365880;
+    --darcula-blue-hover: #436995;
+    --darcula-blue-border: #4b6eaf;
+
+    /* Dark: Colores de sintaxis */
     --annotation-color: #bbb529;
     --keyword-color: #cc7832;
     --string-color: #6a8759;
     --accent-blue: #467cda;
     --method-color: #ffc66d;
 
-    /* Colores Mac Buttons */
+    /* Dark: Controles de ventana (Mac) */
     --mac-red: #ff5f56;
     --mac-yellow: #ffbd2e;
     --mac-green: #27c93f;
+
+    /* ================================ */
+    /* PALETA LIGHT (nueva / predefinida) */
+    /* ================================ */
+
+    /* Light: Fondos y bordes principales */
+    --light-bg: #f5f7fa;
+    --light-sidebar: #e9edf3;
+    --light-editor: #ffffff;
+    --light-tool-bg: #dde3ec;
+    --light-hover: #d6deea;
+    --light-border: #c3ccd9;
+    --light-border-light: #d1d9e5;
+
+    /* Light: Textos */
+    --light-text: #2f3847;
+    --light-text-muted: #677182;
+    --light-text-light: #4d5766;
+    --light-text-white: #ffffff;
+
+    /* Light: Botones y formularios */
+    --light-btn-bg: #e9edf3;
+    --light-btn-hover: #dde4ee;
+    --light-btn-border: #bcc7d7;
+
+    /* Light: Azules de UI */
+    --light-blue-bg: #cfe3ff;
+    --light-blue-hover: #bed9ff;
+    --light-blue-border: #8cb7ff;
+
+    /* Light: Colores de sintaxis */
+    --light-annotation-color: #7c6f00;
+    --light-keyword-color: #9b3f00;
+    --light-string-color: #2f6d2f;
+    --light-accent-blue: #2b69d1;
+    --light-method-color: #8a5200;
+
+    /* Light: Estados semanticos */
+    --light-error: #d63f36;
+    --light-warning: #cf8a00;
+    --light-success: #1f8a3b;
 }
 
 * {
@@ -33,6 +97,42 @@ body {
     flex-direction: column;
     height: 100vh;
     overflow: hidden;
+}
+
+/* Splash de inicio */
+.startup-splash {
+    position: fixed;
+    inset: 0;
+    z-index: 9999;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: linear-gradient(160deg, #232526 0%, #2f3133 45%, #1f2022 100%);
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity 0.35s ease, visibility 0.35s ease;
+}
+
+.startup-splash.show {
+    opacity: 1;
+    visibility: visible;
+}
+
+.startup-splash.hide {
+    opacity: 0;
+    visibility: hidden;
+}
+
+.startup-splash-card {
+    text-align: center;
+    padding: 10px;
+}
+
+.startup-splash-image {
+    width: min(72vw, 620px);
+    max-width: 100%;
+    height: auto;
+    object-fit: contain;
 }
 
 /* 2. HEADER PRINCIPAL */
@@ -95,6 +195,7 @@ body {
     width: 22px;
     height: 22px;
     object-fit: contain;
+    color: var(--darcula-text);
 }
 
 /* 3. LAYOUT Y SIDEBARS */
@@ -109,7 +210,7 @@ body {
     flex-direction: column;
     align-items: center;
     width: 45px;
-    background-color: #313335;
+    background-color: var(--darcula-tool-bg);
     padding-top: 15px;
     padding-bottom: 90px;
     gap: 15px;
@@ -123,16 +224,20 @@ body {
     cursor: pointer;
     opacity: 0.6;
     transition: 0.2s;
+    color: var(--darcula-text);
 }
 
 .tool-icon.active {
     opacity: 1;
-    border-left: 2px solid white;
+    border-left: 2px solid var(--darcula-text-white);
 }
 
-/* El "peso" para la terminal: Empuja este icono al final */
-#tool-terminal {
+#tool-theme {
     margin-top: auto;
+}
+
+#tool-terminal {
+    margin-top: 0;
 }
 
 .project-view {
@@ -153,7 +258,7 @@ body {
 }
 
 .tree-item:hover {
-    background-color: #4e5254;
+    background-color: var(--darcula-hover);
 }
 
 .indent-1 {
@@ -167,31 +272,32 @@ body {
 .file-link {
     text-decoration: none;
     color: inherit;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    width: 100%;
 }
 
 .icon {
     width: 16px;
     height: 16px;
+    color: var(--darcula-text);
 }
 
-/* 4. EDITOR DE CÓDIGO Y TERMINAL ACOPLADA */
+/* 4. EDITOR DE CÓDIGO */
 .code-editor {
     flex: 1;
     display: flex;
     flex-direction: column;
-    /* Apila editor arriba y terminal abajo */
     background-color: var(--darcula-editor);
     overflow: hidden;
 }
 
 .editor-canvas {
     flex: 1;
-    /* Ocupa el espacio sobrante arriba */
     overflow-y: auto;
-    /* Scroll para listas de tareas grandes */
 }
 
-/* Vistas de archivos individuales */
 .code-page {
     display: none;
     flex-direction: column;
@@ -203,7 +309,7 @@ body {
 }
 
 .tabs {
-    background-color: #3c3f41;
+    background-color: var(--darcula-sidebar);
     padding: 8px 15px;
     font-size: 0.8rem;
     border-right: 1px solid var(--darcula-border);
@@ -216,7 +322,7 @@ pre {
     line-height: 1.5;
 }
 
-/* Colores de sintaxis */
+/* 5. COLORES DE SINTAXIS PARA EDITOR */
 .annotation {
     color: var(--annotation-color);
 }
@@ -234,17 +340,16 @@ pre {
 }
 
 .class-name {
-    color: #a9b7c6;
+    color: var(--darcula-text);
 }
 
 .comment {
-    color: #808080;
+    color: var(--darcula-text-muted);
 }
 
-/* 5. TERMINAL ACOPLADA AL FONDO */
+/* 6. TERMINAL ACOPLADA AL FONDO */
 #terminal-file {
     height: 250px;
-    /* Altura de la terminal */
     border-top: 2px solid var(--darcula-border);
     background-color: var(--darcula-bg);
     display: flex;
@@ -255,17 +360,8 @@ pre {
     flex: 1;
     padding: 10px;
     font-size: 0.8rem;
-    color: #bbb;
+    color: var(--darcula-text-light);
     overflow-y: auto;
-}
-
-.info {
-    color: var(--string-color);
-    font-weight: bold;
-}
-
-.success {
-    color: var(--mac-green);
 }
 
 .terminal-input-line {
@@ -278,7 +374,7 @@ pre {
 #cli-input {
     background: transparent;
     border: none;
-    color: white;
+    color: var(--darcula-text-white);
     outline: none;
     flex: 1;
     font-family: inherit;
@@ -291,7 +387,7 @@ pre {
 }
 
 .user-cmd {
-    color: #fff;
+    color: var(--darcula-text-white);
 }
 
 .error {
@@ -306,9 +402,9 @@ pre {
     color: var(--accent-blue);
 }
 
-/* Para marcar el archivo activo en el sidebar */
+/* 7. ESTADOS ADICIONALES DE ARCHIVOS Y ESTILOS GLOBALES */
 .active-file {
-    background-color: #4e5254;
+    background-color: var(--darcula-hover);
     border-left: 2px solid var(--accent-blue);
 }
 
@@ -316,20 +412,17 @@ pre {
     display: none !important;
 }
 
-/* Contenedor principal del formulario de añadido */
+/* 8. FORMULARIO DE AÑADIDO (PANEL NUEVA TAREA) */
 .form-add-panel {
-    background-color: #3c3f41;
-    /* Fondo gris oscuro IntelliJ */
+    background-color: var(--darcula-sidebar);
     padding: 12px 15px;
-    border-bottom: 2px solid #2b2b2b;
+    border-bottom: 2px solid var(--darcula-bg);
     display: flex;
     flex-direction: column;
     gap: 10px;
     animation: slideDown 0.2s ease-out;
-    /* Un pequeño toque de animación */
 }
 
-/* Fila superior: Input y Selector */
 .add-panel-body {
     display: flex;
     gap: 10px;
@@ -337,30 +430,27 @@ pre {
 }
 
 .add-panel-input {
-    background: #2b2b2b;
-    border: 1px solid #646464;
-    color: #a9b7c6;
+    background: var(--darcula-bg);
+    border: 1px solid var(--darcula-border-light);
+    color: var(--darcula-text);
     padding: 6px 10px;
     flex-grow: 1;
     outline: none;
     font-family: 'JetBrains Mono', monospace;
-    /* Si la tienes, le da el toque pro */
 }
 
 .add-panel-input:focus {
-    border-color: #4b6eaf;
-    /* Azul al enfocar */
+    border-color: var(--darcula-blue-border);
 }
 
 .add-panel-select {
-    background: #3c3f41;
-    border: 1px solid #646464;
-    color: #a9b7c6;
+    background: var(--darcula-sidebar);
+    border: 1px solid var(--darcula-border-light);
+    color: var(--darcula-text);
     padding: 5px;
     cursor: pointer;
 }
 
-/* Fila inferior: Botones de acción */
 .add-panel-footer {
     display: flex;
     justify-content: flex-end;
@@ -368,33 +458,31 @@ pre {
 }
 
 .add-panel-btn-confirm {
-    background-color: #365880;
-    /* Azul mate IntelliJ */
-    color: #bbbbbb;
-    border: 1px solid #4b6eaf;
+    background-color: var(--darcula-blue-bg);
+    color: var(--darcula-text-light);
+    border: 1px solid var(--darcula-blue-border);
     padding: 4px 12px;
     cursor: pointer;
     transition: background 0.2s;
 }
 
 .add-panel-btn-confirm:hover {
-    background-color: #436995;
-    color: white;
+    background-color: var(--darcula-blue-hover);
+    color: var(--darcula-text-white);
 }
 
 .add-panel-btn-cancel {
     background: transparent;
-    color: #afafaf;
-    border: 1px solid #646464;
+    color: var(--darcula-text-light);
+    border: 1px solid var(--darcula-border-light);
     padding: 4px 12px;
     cursor: pointer;
 }
 
 .add-panel-btn-cancel:hover {
-    background: #4e5254;
+    background: var(--darcula-hover);
 }
 
-/* Animación de entrada */
 @keyframes slideDown {
     from {
         opacity: 0;
@@ -405,4 +493,92 @@ pre {
         opacity: 1;
         transform: translateY(0);
     }
+}
+
+/* 9. BARRA DE HERRAMIENTAS (TOOLBAR) DEL CONTROLLER */
+.controller-toolbar {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    padding: 10px 15px;
+    background-color: var(--darcula-bg);
+    border-bottom: 1px solid var(--darcula-border);
+}
+
+.gui-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    height: 40px;
+    padding: 0 15px;
+    background-color: var(--darcula-btn-bg);
+    border: 1px solid var(--darcula-btn-border);
+    color: var(--darcula-text-light);
+    border-radius: 3px;
+    cursor: pointer;
+    transition: background 0.2s, border-color 0.2s;
+}
+
+.gui-btn span {
+    font-family: inherit;
+    font-size: 13px;
+    line-height: 1;
+}
+
+.btn-icon {
+    width: 18px;
+    height: 18px;
+    color: var(--darcula-text);
+}
+
+.toolbar-search-input {
+    background: var(--darcula-bg);
+    border: 1px solid var(--darcula-border);
+    color: var(--darcula-text);
+    padding: 6px 12px;
+    border-radius: 4px;
+    font-family: inherit;
+    font-size: 13px;
+    outline: none;
+    margin-left: auto;
+    transition: border-color 0.2s, box-shadow 0.2s;
+    width: 1500px;
+    height: 40px;
+}
+
+.toolbar-search-input:focus {
+    border-color: var(--darcula-blue-border);
+    box-shadow: 0 0 0 2px rgba(75, 110, 175, 0.3);
+}
+
+.toolbar-search-input::placeholder {
+    color: var(--darcula-text-muted);
+    font-style: italic;
+}
+
+.gui-btn:hover {
+    background-color: var(--darcula-btn-hover);
+    border-color: var(--darcula-blue-border);
+    color: var(--darcula-text-white);
+}
+
+.empty-msg {
+    padding: 20px;
+    color: var(--darcula-text-muted);
+    font-family: 'JetBrains Mono', 'Fira Code', monospace;
+    font-style: italic;
+    font-size: 13px;
+}
+
+.top-bar-date {
+    cursor: pointer;
+    padding: 2px 5px;
+    border-radius: 3px;
+    transition: background 0.2s;
+}
+
+.top-bar-date:hover {
+    background-color: var(--darcula-btn-bg);
+    color: var(--darcula-text-white);
 }

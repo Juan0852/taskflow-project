@@ -9,6 +9,12 @@
 </head>
 
 <body>
+    <div id="startup-splash" class="startup-splash">
+        <div class="startup-splash-card">
+            <img src="/assets/SplashScreenBiTask.png" alt="BiTask" class="startup-splash-image">
+        </div>
+    </div>
+
     <header class="main-window-header">
         <div class="window-controls">
             <span class="dot red" onclick="alert('¿Qué haces? Ponte a trabajar...')"></span>
@@ -34,6 +40,7 @@
             <img src="/assets/Commit.png" id="tool-git" alt="Git Commits" class="tool-icon">
             <img src="/assets/Structure.png" id="tool-structure" alt="Code Structure" class="tool-icon">
             <img src="/assets/More.png" id="tool-settings" alt="Settings" class="tool-icon">
+            <img src="/assets/More.png" id="tool-theme" alt="Theme Toggle" class="tool-icon" title="Cambiar tema (Dark/Light)">
             <img src="/assets/Terminal.png" id="tool-terminal" alt="Terminal" class="tool-icon">
         </aside>
 
@@ -44,24 +51,24 @@
                         <img src="https://cdn-icons-png.flaticon.com/512/716/716784.png" class="icon">
                         <span>src/main/java/com/bitask</span>
                     </li>
-                    <a href="#controller-file" class="file-link">
-                        <li class="tree-item indent-2">
+                    <li class="tree-item indent-2">
+                        <a href="#controller-file" class="file-link">
                             <img src="https://cdn-icons-png.flaticon.com/512/5968/5968282.png" class="icon">
                             <span>TaskController.java</span>
-                        </li>
-                    </a>
-                    <a href="#kanban-file" class="file-link">
-                        <li class="tree-item indent-2">
+                        </a>
+                    </li>
+                    <li class="tree-item indent-2">
+                        <a href="#kanban-file" class="file-link">
                             <img src="https://cdn-icons-png.flaticon.com/512/5968/5968282.png" class="icon">
                             <span>KanbanBoard.java</span>
-                        </li>
-                    </a>
-                    <a href="#docker-file" class="file-link">
-                        <li class="tree-item indent-1">
+                        </a>
+                    </li>
+                    <li class="tree-item indent-1">
+                        <a href="#readme-file" class="file-link">
                             <img src="https://cdn-icons-png.flaticon.com/512/919/919830.png" class="icon">
-                            <span>Dockerfile</span>
-                        </li>
-                    </a>
+                            <span>Readme.md</span>
+                        </a>
+                    </li>
                 </ul>
             </div>
         </aside>
@@ -70,34 +77,39 @@
             <div class="editor-canvas" id="editor-display">
                 <section id="controller-file" class="code-page">
                     <div class="tabs">TaskController.java ✕</div>
-
                     <div class="controller-toolbar">
-                        <button id="btn-add-gui" class="gui-btn add">+ New Task</button>
-                        <button id="btn-clear-gui" class="gui-btn delete">🗑 Clear All</button>
-                        <span class="file-info">// java.util.List&lt;Task&gt; storage</span>
-                    </div>
+                        <button id="btn-add-gui" class="gui-btn add">
+                            <img src="assets/Add.png" alt="" class="btn-icon">
+                            <span>Nueva Tarea</span>
+                        </button>
 
+                        <button id="btn-clear-gui" class="gui-btn delete">
+                            <img src="/assets/Trash.png" alt="" class="btn-icon">
+                            <span>Borrar Todas</span>
+                        </button>
+
+                        <input type="text" id="gui-search-task" placeholder="Buscar tareas..."
+                            class="toolbar-search-input">
+                    </div>
                     <div id="gui-add-panel" class="form-add-panel" style="display: none;">
                         <div class="add-panel-body">
-                            <input type="text" id="gui-task-name" placeholder="Task description..."
+                            <input type="text" id="gui-task-name" placeholder="Descripción de la tarea..."
                                 class="add-panel-input">
 
                             <select id="gui-task-priority" class="add-panel-select">
-                                <option value="baja">Low</option>
-                                <option value="media" selected>Medium</option>
-                                <option value="alta">High</option>
+                                <option value="baja">Baja</option>
+                                <option value="media" selected>Media</option>
+                                <option value="alta">Alta</option>
                             </select>
                         </div>
                         <div class="add-panel-footer">
-                            <button id="btn-confirm-add" class="add-panel-btn-confirm">Add Task</button>
-                            <button id="btn-cancel-add" class="add-panel-btn-cancel">Cancel</button>
+                            <button id="btn-confirm-add" class="add-panel-btn-confirm">Añadir Tarea</button>
+                            <button id="btn-cancel-add" class="add-panel-btn-cancel">Cancelar</button>
                         </div>
                     </div>
 
                     <div class="code-content">
-                        <div id="task-list-container" class="task-list">
-                            <p class="empty-msg">// No tasks found. Use 'bitask add' or the button above.</p>
-                        </div>
+                        <div id="task-list-container" class="task-list"></div>
                     </div>
                 </section>
 
@@ -105,10 +117,9 @@
                     <div class="tabs">KanbanBoard.java ✕</div>
                     <div class="kanban-board" id="kanban-display"></div>
                 </section>
-
-                <section id="docker-file" class="code-page" style="display:none;">
-                    <div class="tabs">Dockerfile ✕</div>
-                    <pre><code><span class="keyword">FROM</span>...</code></pre>
+                <section id="readme-file" class="code-page" style="display:block;">
+                    <div class="tabs">Readme.md</div>
+                    <div id="manual-content-container"></div>
                 </section>
             </div>
 
@@ -116,7 +127,8 @@
                 <div class="tabs">Terminal Logs ✕</div>
                 <div class="log-output" id="terminal-logs-display">
                     <span class="info">INFO</span> - BiTask Kernel v1.0 [Oso de Anteojos] loaded. <br>
-                    <span class="success">SUCCESS</span> - Andean Bear region: Colombia. Ready.
+                    <span class="success">SUCCESS</span> - Bienvenido a tu gestor de tareas favorito.<br>
+                    Si necesitas mas informacion o una guia rapida: /bitask -help <br>
                 </div>
                 <div class="terminal-input-line">
                     <span class="prompt" style="color:var(--string-color); padding-left:10px;">bitask@colombia:~$</span>
@@ -125,6 +137,7 @@
             </section>
         </main>
     </div>
+    <script src="js/innerhtmls.js"></script>
     <script src="js/task-service.js"></script>
     <script src="js/commands.js"></script>
     <script src="js/ui-manager.js"></script>

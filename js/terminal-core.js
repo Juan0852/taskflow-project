@@ -1,38 +1,33 @@
-
 /**
  * BiTask - Terminal Core Engine [Pipeline Edition]
  */
 const TerminalCore = {
+
+    lastCommand: "", // Nuestra "memoria" interna
+    errorCount: 0,
+
     init(terminalDom) {
-        // terminalDom es lo que app.js llama "domElements.terminal"
         this.input = terminalDom.input;
         this.panel = terminalDom.panel;
         this.btn = terminalDom.btn;
-
-        if (this.btn) {
-            this.btn.addEventListener('click', () => {
-                if (typeof UIManager !== 'undefined' && UIManager.toggleTerminal) {
-                    UIManager.toggleTerminal();
-                }
-            });
-        }
-
-        this.input.addEventListener('keydown', (e) => {
-            if (e.key === 'Enter') {
-                this.pipeline(e.target.value);
-                e.target.value = "";
-            }
-        });
     },
+
     /**
-     * El Pipeline: El flujo de purificación del comando
+     * Recupera el último comando al input (Se llamará desde la fecha de arriba)
      */
+    restoreLastCommand() {
+        if (this.lastCommand && this.input) {
+            this.input.value = this.lastCommand;
+            this.input.focus();
+            const len = this.input.value.length;
+            this.input.setSelectionRange(len, len);
+        }
+    },
+
     pipeline(input) {
-        // 1. LIMPIEZA: Regex para quitar espacios extra y dejarlo nítido
         const cleanInput = input.trim().replace(/\s+/g, ' ');
         if (!cleanInput) return;
 
-        // 2. VALIDACIÓN DE PREFIJO: ¿Es un comando legal?
         const isGlobal = cleanInput.toLowerCase() === 'clear';
         const isSuite = cleanInput.toLowerCase().startsWith('/bitask');
 
@@ -40,27 +35,22 @@ const TerminalCore = {
             return this._err(cleanInput, "Formato inválido. Usa /bitask [comando]");
         }
 
-        // 3. DESPACHO: Si es clear, va directo. Si es /bitask, entra a cirugía.
-        if (isGlobal) return UIManager.clearTerminal();
+        if (isGlobal) {
+            this._markSuccess();
+            return UIManager.clearTerminal();
+        }
 
         this.processSuite(cleanInput);
     },
 
-    /**
-     * Cirugía del comando /bitask
-     */
     processSuite(raw) {
-        // Buscamos qué flag está presente (la "primera parte" del comando)
         const foundFlag = Object.keys(Commands.registry).find(flag => raw.includes(flag));
 
         if (!foundFlag) {
             return this._err(raw, "Acción no identificada. Usa -a, -rm o -u.");
         }
 
-        // Obtenemos el ID de acción (1: Add, 2: Remove, etc.)
         const actionId = Commands.registry[foundFlag]();
-
-        // 4. EJECUCIÓN CON PRIORIDAD OBLIGATORIA
         this.execute(actionId, raw);
     },
 
@@ -78,15 +68,11 @@ const TerminalCore = {
     // --- MÉTODOS ESPECIALIZADOS ---
 
     runAdd(raw) {
-        // Regex para extraer: [0] completo, [1] tarea entre comillas, [2] lo que sigue
         const parts = raw.match(/["'](.+?)["']\s*(.*)/);
-
         if (!parts) return this._err(raw, "Error: El formato debe ser: -a \"tarea\" -p [prioridad]");
 
         const taskText = parts[1];
         const remaining = parts[2].trim();
-
-        // Buscamos la prioridad obligatoria después de las comillas
         const prioMatch = remaining.match(/^-(?:p|priority)\s+(alta|media|baja)/i);
 
         if (!prioMatch) {
@@ -94,10 +80,9 @@ const TerminalCore = {
         }
 
         const priority = prioMatch[1].toLowerCase();
-
-        // Acción final
-        const newTask = TaskService.add(taskText, priority);
+        TaskService.add(taskText, priority);
         UIManager.renderTaskList(TaskService.getAll());
+        this._markSuccess();
         UIManager.printTerminalLine(raw, `<span class="success">OK:</span> Tarea creada con éxito.`);
     },
 
@@ -107,6 +92,7 @@ const TerminalCore = {
 
         if (TaskService.delete(parseInt(idMatch[0]))) {
             UIManager.renderTaskList(TaskService.getAll());
+            this._markSuccess();
             UIManager.printTerminalLine(raw, "Tarea eliminada correctamente.");
         }
     },
@@ -124,6 +110,7 @@ const TerminalCore = {
 
         if (TaskService.update(parseInt(idMatch[0]), updates)) {
             UIManager.renderTaskList(TaskService.getAll());
+            this._markSuccess();
             UIManager.printTerminalLine(raw, "Tarea actualizada.");
         } else {
             this._err(raw, "Error al actualizar");
@@ -131,16 +118,32 @@ const TerminalCore = {
     },
 
     runHelp() {
-        UIManager.printTerminalLine('/bitask', `
-            Guía rápida:<br>
-            -a "tarea" -p alta<br>
-            -rm [id]<br>
-            -u [id] -n "nuevo"<br>
-            clear
-        `);
+        // 1. Imprime la guía rápida en la terminal
+        this._markSuccess();
+        UIManager.printTerminalLine('/bitask -help', HELP_TERMINAL);
+
+        // 2. Lanza el manual visual en el editor principal
+        if (typeof UIManager !== 'undefined' && UIManager.showHelp) {
+            UIManager.showHelp();
+        }
     },
 
     _err(input, msg) {
+        this.errorCount += 1;
+
+        if (this.errorCount >= 5) {
+            UIManager.printTerminalLine(
+                input,
+                `<span class="error">ERROR:</span> Bro mejor relajate, prepara un café y leete la documentacion del readme.md :)`
+            );
+            this.errorCount = 0;
+            return;
+        }
+
         UIManager.printTerminalLine(input, `<span class="error">ERROR:</span> ${msg}`);
+    },
+
+    _markSuccess() {
+        this.errorCount = 0;
     }
 };

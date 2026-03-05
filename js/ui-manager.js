@@ -19,8 +19,9 @@ const UIManager = {
                 link.addEventListener('click', (e) => {
                     const href = link.getAttribute('href');
                     if (href && href.startsWith('#')) {
-                        // Opcional: e.preventDefault(); si queremos evitar el salto
-                        this.switchTab(href.substring(1));
+                        e.preventDefault();
+                        const tabId = href.substring(1);
+                        this.switchTab(tabId);
                     }
                 });
             });
@@ -39,26 +40,62 @@ const UIManager = {
         const container = this.elements.taskContainer;
         if (!container) return;
 
+        // 1. Limpiamos el buffer
         container.innerHTML = '';
 
+        // 2. Creamos el encabezado de Java (Siempre presente)
+        const header = document.createElement('div');
+        header.style = "padding: 10px 15px; border-bottom: 1px solid #333; font-family: monospace; font-size: 13px;";
+        //Se podria crear un estilo en especifico para este header en el css pero me da pereza...
+        header.innerHTML = `<span style="color: #cc7832;">private</span> <span style="color: #a9b7c6;">List&lt;Task&gt;</span> <span style="color: #9876aa;">storage</span> = <span style="color: #cc7832;">new</span> <span style="color: #a9b7c6;">ArrayList</span>&lt;&gt;();`;
+        container.appendChild(header);
+
+        // 3. Si no hay tareas, añadimos el comentario de vacío debajo del header
         if (tasks.length === 0) {
-            container.innerHTML = `<div style="padding: 20px; color: #555;">// No hay tareas en el buffer...</div>`;
+            const emptyMsg = document.createElement('div');
+            emptyMsg.style = "padding: 20px; color: #555; font-style: italic;";
+            emptyMsg.innerText = "// No hay tareas en el buffer...";
+            container.appendChild(emptyMsg);
             return;
         }
 
+        // 4. Logica original: Dibujamos las filas de tareas
         tasks.forEach(task => {
             const taskRow = document.createElement('div');
             taskRow.className = `tree-item task-row prio-${task.priority}`;
-            taskRow.innerHTML = `
-                <span class="keyword">#${task.id}</span>
-                <span class="method">[${task.priority.toUpperCase()}]</span>
-                <span class="string">"${task.text}"</span>
-                <span class="comment">// ${task.createdAt}</span>
+            taskRow.style.display = 'flex';
+            taskRow.style.justifyContent = 'space-between';
+            taskRow.style.alignItems = 'center';
+
+            const taskContent = document.createElement('div');
+            taskContent.innerHTML = `
+            <span class="keyword">#${task.id}</span>
+            <span class="method">[${task.priority.toUpperCase()}]</span>
+            <span class="string">"${task.text}"</span>
+            <span class="comment">// ${task.createdAt}</span>
             `;
+
+            const deleteBtn = document.createElement('button');
+            deleteBtn.innerHTML = '🗑️';
+            deleteBtn.className = 'btn-delete-single';
+            deleteBtn.style.background = 'transparent';
+            deleteBtn.style.border = 'none';
+            deleteBtn.style.cursor = 'pointer';
+            deleteBtn.title = 'Eliminar Tarea';
+
+            deleteBtn.addEventListener('click', () => {
+                if (confirm(`¿Estás seguro de que quieres borrar la tarea #${task.id}?`)) {
+                    TaskService.delete(task.id);
+                    this.renderTaskList(TaskService.getAll());
+                }
+            });
+
+            taskRow.appendChild(taskContent);
+            taskRow.appendChild(deleteBtn);
             container.appendChild(taskRow);
         });
 
-        // Auto-scroll al final del editor
+        // Auto-scroll al final
         container.scrollTop = container.scrollHeight;
     },
 
@@ -140,6 +177,22 @@ const UIManager = {
         const pages = document.querySelectorAll('.code-page');
         pages.forEach(page => {
             page.style.display = page.id === tabId ? 'block' : 'none';
+        });
+        this.setActiveFileLink(tabId);
+    },
+
+    /**
+     * Sincroniza el archivo activo en el árbol lateral
+     */
+    setActiveFileLink(tabId) {
+        const links = document.querySelectorAll('.file-link');
+        links.forEach(link => {
+            const href = link.getAttribute('href');
+            const isActive = href === `#${tabId}`;
+            const treeItem = link.closest('.tree-item');
+            if (treeItem) {
+                treeItem.classList.toggle('active-file', isActive);
+            }
         });
     }
 };
