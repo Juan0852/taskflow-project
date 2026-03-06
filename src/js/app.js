@@ -1,4 +1,10 @@
 // app.js - El Iniciador
+import { BITASK_KANBAN, BITASK_MANUAL } from './innerhtmls.js';
+import { Shortcuts } from './shortcuts.js';
+import { TaskService } from './task-service.js';
+import { TerminalCore } from './terminal-core.js';
+import { UIManager } from './ui-manager.js';
+
 document.addEventListener('DOMContentLoaded', () => {
 
     /** * 1. MAPEO DE ELEMENTOS DEL DOM
@@ -40,10 +46,9 @@ document.addEventListener('DOMContentLoaded', () => {
     const TerminalUI = {
         init(terminal) {
             if (terminal.btn && terminal.panel) {
+                UIManager.setTerminalButtonState(!terminal.panel.classList.contains('hidden'));
                 terminal.btn.addEventListener('click', () => {
-                    if (typeof UIManager !== 'undefined' && UIManager.toggleTerminal) {
-                        UIManager.toggleTerminal(terminal.panel);
-                    }
+                    UIManager.toggleTerminal(terminal.panel);
                 });
             }
         }
@@ -105,7 +110,9 @@ document.addEventListener('DOMContentLoaded', () => {
                 this.btn.alt = 'Cambiar a tema dark';
                 this.btn.title = 'Cambiar a tema dark';
             }
-        }
+        },
+
+        _updateIconTint() {}
     };
 
     // Pantalla de arranque (2s)
@@ -142,11 +149,13 @@ document.addEventListener('DOMContentLoaded', () => {
                 return;
             }
 
-            splashPanel.classList.add('show');
+            splashPanel.classList.remove('invisible', 'opacity-0');
+            splashPanel.classList.add('visible', 'opacity-100');
             this._saveToken();
 
             setTimeout(() => {
-                splashPanel.classList.add('hide');
+                splashPanel.classList.remove('visible', 'opacity-100');
+                splashPanel.classList.add('invisible', 'opacity-0');
                 setTimeout(() => splashPanel.remove(), 400);
             }, 2000);
         }
@@ -179,7 +188,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
             gui.btnAdd.addEventListener('click', () => {
                 UIManager.toggleGeneric(gui.addPanel);
-                if (window.getComputedStyle(gui.addPanel).display !== 'none') {
+                if (!gui.addPanel.classList.contains('hidden')) {
                     gui.inputName.focus();
                 }
             });
@@ -202,7 +211,8 @@ document.addEventListener('DOMContentLoaded', () => {
         },
         _close(gui) {
             gui.inputName.value = '';
-            gui.addPanel.style.display = 'none';
+            gui.addPanel.classList.add('hidden');
+            gui.addPanel.classList.remove('flex');
         }
     };
 
@@ -260,10 +270,10 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Renderizado Inicial
     UIManager.renderTaskList(TaskService.getAll());
-    if (domElements.navigation.manualContainer && typeof BITASK_MANUAL !== 'undefined') {
+    if (domElements.navigation.manualContainer) {
         domElements.navigation.manualContainer.innerHTML = BITASK_MANUAL;
     }
-    if (domElements.navigation.kanbanContainer && typeof BITASK_KANBAN !== 'undefined') {
+    if (domElements.navigation.kanbanContainer) {
         domElements.navigation.kanbanContainer.innerHTML = BITASK_KANBAN;
     }
 

@@ -2,7 +2,7 @@
  * BiTask - Commands Dictionary
  * Define el mapeo de flags a códigos de acción.
  */
-const Commands = {
+export const Commands = {
     registry: {
         // Accion 1: ADD
         '-add': () => 1,

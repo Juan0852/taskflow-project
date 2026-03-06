@@ -1,0 +1,15 @@
+{
+  "tailwindCSS.experimental.configFile": "/Users/juanmontero/Documents/taskflow-project/tailwind.config.cjs",
+  "tailwindCSS.experimental.classRegex": [
+    "class\\s*=\\s*\"([^\"]*)\"",
+    "class\\s*=\\s*'([^']*)'",
+    "class\\s*=\\s*`([^`]*)`",
+    "className\\s*=\\s*\"([^\"]*)\"",
+    "className\\s*=\\s*'([^']*)'",
+    "className\\s*=\\s*`([^`]*)`"
+  ],
+  "tailwindCSS.emmetCompletions": true,
+  "editor.quickSuggestions": {
+    "strings": true
+  }
+}

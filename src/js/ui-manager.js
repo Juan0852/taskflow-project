@@ -2,7 +2,9 @@
  * BiTask - UI Manager [Oso de Anteojos]
  * Adaptado al layout de IntelliJ Darcula.
  */
-const UIManager = {
+import { TaskService } from './task-service.js';
+
+export const UIManager = {
     // Sincronizado con tus IDs de HTML/CSS
     elements: {
         taskContainer: document.getElementById('task-list-container'), // El area del editor
@@ -28,9 +30,7 @@ const UIManager = {
         }
 
         // Renderizar las tareas iniciales
-        if (typeof TaskService !== 'undefined') {
-            this.renderTaskList(TaskService.getAll());
-        }
+        this.renderTaskList(TaskService.getAll());
     },
 
     /**
@@ -45,15 +45,15 @@ const UIManager = {
 
         // 2. Creamos el encabezado de Java (Siempre presente)
         const header = document.createElement('div');
-        header.style = "padding: 10px 15px; border-bottom: 1px solid #333; font-family: monospace; font-size: 13px;";
+        header.className = "border-b border-solid border-[var(--color-border-strong)] px-[15px] py-[10px] font-mono text-[14px]";
         //Se podria crear un estilo en especifico para este header en el css pero me da pereza...
-        header.innerHTML = `<span style="color: #cc7832;">private</span> <span style="color: #a9b7c6;">List&lt;Task&gt;</span> <span style="color: #9876aa;">storage</span> = <span style="color: #cc7832;">new</span> <span style="color: #a9b7c6;">ArrayList</span>&lt;&gt;();`;
+        header.innerHTML = `<span class="text-[var(--color-code-keyword)]">private</span> <span class="text-[var(--color-text)]">List&lt;Task&gt;</span> <span class="text-[var(--color-code-identifier)]">storage</span> = <span class="text-[var(--color-code-keyword)]">new</span> <span class="text-[var(--color-text)]">ArrayList</span>&lt;&gt;();`;
         container.appendChild(header);
 
         // 3. Si no hay tareas, añadimos el comentario de vacío debajo del header
         if (tasks.length === 0) {
             const emptyMsg = document.createElement('div');
-            emptyMsg.style = "padding: 20px; color: #555; font-style: italic;";
+            emptyMsg.className = "p-5 italic text-[var(--color-text-dim)]";
             emptyMsg.innerText = "// No hay tareas en el buffer...";
             container.appendChild(emptyMsg);
             return;
@@ -62,33 +62,24 @@ const UIManager = {
         // 4. Logica original: Dibujamos las filas de tareas
         tasks.forEach(task => {
             const taskRow = document.createElement('div');
-            taskRow.className = `tree-item task-row prio-${task.priority}`;
-            taskRow.style.display = 'flex';
-            taskRow.style.justifyContent = 'space-between';
-            taskRow.style.alignItems = 'center';
+            taskRow.className = `tree-item task-row prio-${task.priority} flex items-center justify-between hover:bg-[var(--color-bg-hover)]`;
 
             const taskContent = document.createElement('div');
             taskContent.innerHTML = `
-            <span class="keyword">#${task.id}</span>
-            <span class="method">[${task.priority.toUpperCase()}]</span>
-            <span class="string">"${task.text}"</span>
-            <span class="comment">// ${task.createdAt}</span>
+            <span class="keyword text-[var(--color-code-keyword)]">#${task.id}</span>
+            <span class="method text-[var(--color-code-method)]">[${task.priority.toUpperCase()}]</span>
+            <span class="string text-[var(--color-code-string)]">"${task.text}"</span>
+            <span class="comment text-[var(--color-text-muted)]">// ${task.createdAt}</span>
             `;
 
             const deleteBtn = document.createElement('button');
-            deleteBtn.className = 'btn-delete-single';
-            deleteBtn.style.background = 'transparent';
-            deleteBtn.style.border = 'none';
-            deleteBtn.style.cursor = 'pointer';
-            deleteBtn.style.display = 'inline-flex';
-            deleteBtn.style.alignItems = 'center';
-            deleteBtn.style.justifyContent = 'center';
+            deleteBtn.className = 'btn-delete-single inline-flex cursor-pointer items-center justify-center border-0 bg-transparent';
             deleteBtn.title = 'Eliminar Tarea';
 
             const deleteIcon = document.createElement('img');
             deleteIcon.src = '/assets/TrashOne.png';
             deleteIcon.alt = 'Eliminar';
-            deleteIcon.className = 'btn-delete-icon';
+            deleteIcon.className = 'btn-delete-icon block h-6 w-6 [filter:var(--delete-icon-filter)]';
             deleteBtn.appendChild(deleteIcon);
 
             deleteBtn.addEventListener('click', () => {
@@ -115,10 +106,10 @@ const UIManager = {
         if (!output) return;
 
         const entry = document.createElement('div');
-        entry.className = 'log-line';
+        entry.className = 'log-line mb-1 leading-[1.4]';
         entry.innerHTML = `
-            <div><span class="info">➜</span> <span class="user-cmd">${this._escapeHTML(input)}</span></div>
-            <div class="terminal-response" style="padding-left: 15px;">${response}</div>
+            <div><span class="info text-[var(--color-accent-info)]">➜</span> <span class="user-cmd text-[var(--color-text-strong)]">${this._escapeHTML(input)}</span></div>
+            <div class="terminal-response pl-[15px]">${response}</div>
         `;
 
         output.appendChild(entry);
@@ -145,21 +136,33 @@ const UIManager = {
     /**
      * Muestra u oculta la terminal
      */
+    setTerminalButtonState(isActive) {
+        const terminalButton = document.getElementById('tool-terminal');
+        if (!terminalButton) return;
+
+        terminalButton.classList.toggle('border-l-2', isActive);
+        terminalButton.classList.toggle('border-[var(--color-text-strong)]', isActive);
+        terminalButton.classList.toggle('opacity-100', isActive);
+        terminalButton.classList.toggle('opacity-60', !isActive);
+    },
+
+    /**
+     * Muestra u oculta la terminal
+     */
     toggleTerminal(panel) {
         if (!panel) return;
 
-        //Se tuvo que añadir este metodo porque el display se hacia con doble click, forzamos a leer el css
-        // "getComputedStyle" es el 'detective' y sí puede leer tu archivo .css
-        const displayReal = window.getComputedStyle(panel).display;
-
-        // Si el estilo que el navegador está dibujando es 'flex', lo cerramos.
-        // Si es cualquier otra cosa (none o vacío), lo abrimos.
-        if (displayReal === 'flex') {
-            panel.style.display = 'none';
-        } else {
-            panel.style.display = 'flex';
+        const isHidden = panel.classList.contains('hidden');
+        if (isHidden) {
+            panel.classList.remove('hidden');
+            panel.classList.add('flex');
+            this.setTerminalButtonState(true);
             const input = document.getElementById('cli-input');
             if (input) input.focus();
+        } else {
+            panel.classList.add('hidden');
+            panel.classList.remove('flex');
+            this.setTerminalButtonState(false);
         }
     },
 
@@ -169,12 +172,13 @@ const UIManager = {
     toggleGeneric(panel) {
         if (!panel) return;
 
-        const displayReal = window.getComputedStyle(panel).display;
-
-        if (displayReal !== 'none') {
-            panel.style.display = 'none';
+        const isHidden = panel.classList.contains('hidden');
+        if (isHidden) {
+            panel.classList.remove('hidden');
+            panel.classList.add('flex');
         } else {
-            panel.style.display = 'flex';
+            panel.classList.add('hidden');
+            panel.classList.remove('flex');
         }
     },
 
@@ -184,7 +188,9 @@ const UIManager = {
     switchTab(tabId) {
         const pages = document.querySelectorAll('.code-page');
         pages.forEach(page => {
-            page.style.display = page.id === tabId ? 'block' : 'none';
+            const isActive = page.id === tabId;
+            page.classList.toggle('hidden', !isActive);
+            page.classList.toggle('flex', isActive);
         });
         this.setActiveFileLink(tabId);
     },
@@ -199,7 +205,9 @@ const UIManager = {
             const isActive = href === `#${tabId}`;
             const treeItem = link.closest('.tree-item');
             if (treeItem) {
-                treeItem.classList.toggle('active-file', isActive);
+                treeItem.classList.toggle('bg-[var(--color-bg-hover)]', isActive);
+                treeItem.classList.toggle('border-l-2', isActive);
+                treeItem.classList.toggle('border-[var(--color-accent-info)]', isActive);
             }
         });
     }

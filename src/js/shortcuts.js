@@ -2,8 +2,10 @@
  * BiTask IDE - Keyboard Shortcuts Manager
  * Gestiona combinaciones de teclas globales de la aplicación.
  */
+import { TerminalCore } from './terminal-core.js';
+import { UIManager } from './ui-manager.js';
 
-const Shortcuts = {
+export const Shortcuts = {
     initialized: false,
 
     init() {
@@ -33,22 +35,17 @@ const Shortcuts = {
             if (isAlt && e.code === 'Backquote') {
                 e.preventDefault(); // Evita que el navegador abra menús por defecto
 
-                if (typeof UIManager !== 'undefined' && UIManager.toggleTerminal) {
-                    // Pasamos el elemento del panel que definiste en tus domElements
-                    const terminalPanel = document.getElementById('terminal-file');
-                    UIManager.toggleTerminal(terminalPanel);
-
-                    console.log("Shortcut: Toggle Terminal (Alt + `)");
-                }
+                // Pasamos el elemento del panel que definiste en tus domElements
+                const terminalPanel = document.getElementById('terminal-file');
+                UIManager.toggleTerminal(terminalPanel);
+                console.log("Shortcut: Toggle Terminal (Alt + `)");
             }
 
             // 3. Recuperar ultimo comando (Alt + Flecha Arriba)
             if (isAlt && e.code === 'ArrowUp') {
                 e.preventDefault();
-                if (typeof TerminalCore !== 'undefined' && TerminalCore.restoreLastCommand) {
-                    TerminalCore.restoreLastCommand();
-                    console.log("Shortcut: Restore Last Command (Alt + ArrowUp)");
-                }
+                TerminalCore.restoreLastCommand();
+                console.log("Shortcut: Restore Last Command (Alt + ArrowUp)");
             }
 
             // 4. Cambiar a Kanban (Alt/Option + 2)
