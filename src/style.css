@@ -7,43 +7,48 @@
  * Qué queda aquí:
  * 1) Tokens globales de color/tema usados por clases Tailwind con var(...)
  * 2) Ajuste específico de tema light para --delete-icon-filter
- * 3) Keyframe slideDown usado por animate-[slideDown_0.2s_ease-out]
+ * 3) Animaciones extendidas definidas en tailwind.config.cjs
  *
  * Todo el layout/componente visual principal se migró a utilidades Tailwind
  * en index.html y en los templates dinámicos de src/js.
  */
 :root {
-    /* Dark: fondos y bordes */
-    --darcula-bg: #2b2b2b;
-    --darcula-sidebar: #3c3f41;
-    --darcula-editor: #2b2b2b;
-    --darcula-tool-bg: #313335;
-    --darcula-hover: #4e5254;
-    --darcula-border: #515151;
-    --darcula-border-light: #646464;
+    /* Tema base (Dark por defecto): superficies y bordes */
+    --color-bg-base: #2b2b2b;
+    --color-bg-surface: #3c3f41;
+    --color-bg-editor: #2b2b2b;
+    --color-bg-toolstrip: #313335;
+    --color-bg-hover: #4e5254;
+    --color-border: #515151;
+    --color-border-soft: #646464;
 
-    /* Dark: textos */
-    --darcula-text: #a9b7c6;
-    --darcula-text-muted: #7a7a7a;
-    --darcula-text-light: #bbbbbb;
-    --darcula-text-white: #ffffff;
+    /* Tema base (Dark por defecto): texto */
+    --color-text: #a9b7c6;
+    --color-text-muted: #7a7a7a;
+    --color-text-soft: #bbbbbb;
+    --color-text-strong: #ffffff;
 
-    /* Dark: botones/form */
-    --darcula-btn-bg: #3c3f41;
-    --darcula-btn-hover: #4b5052;
-    --darcula-btn-border: #5e6466;
+    /* Tema base (Dark por defecto): controles/acento */
+    --color-control-bg: #3c3f41;
+    --color-control-hover: #4b5052;
+    --color-control-border: #5e6466;
+    --color-accent-bg: #365880;
+    --color-accent-hover: #436995;
+    --color-accent-border: #4b6eaf;
+    --color-border-strong: #333333;
+    --color-border-subtle: #3f3f3f;
 
-    /* Dark: acentos UI */
-    --darcula-blue-bg: #365880;
-    --darcula-blue-hover: #436995;
-    --darcula-blue-border: #4b6eaf;
+    /* Sintaxis (Dark por defecto) */
+    --color-code-annotation: #bbb529;
+    --color-code-keyword: #cc7832;
+    --color-code-string: #6a8759;
+    --color-accent-info: #467cda;
+    --color-code-method: #ffc66d;
+    --color-code-identifier: #9876aa;
 
-    /* Dark: sintaxis */
-    --annotation-color: #bbb529;
-    --keyword-color: #cc7832;
-    --string-color: #6a8759;
-    --accent-blue: #467cda;
-    --method-color: #ffc66d;
+    /* Texto auxiliar */
+    --color-text-dim: #555555;
+    --color-text-dimmer: #808080;
 
     /* Dark: controles de ventana */
     --mac-red: #ff5f56;
@@ -51,67 +56,64 @@
     --mac-green: #27c93f;
     --theme-sun-yellow: var(--mac-yellow);
 
-    /* Light: fondos y bordes */
-    --light-bg: #f5f7fa;
-    --light-sidebar: #e9edf3;
-    --light-editor: #ffffff;
-    --light-tool-bg: #dde3ec;
-    --light-hover: #d6deea;
-    --light-border: #c3ccd9;
-    --light-border-light: #d1d9e5;
-
-    /* Light: textos */
-    --light-text: #2f3847;
-    --light-text-muted: #677182;
-    --light-text-light: #4d5766;
-    --light-text-white: #ffffff;
-
-    /* Light: botones/form */
-    --light-btn-bg: #e9edf3;
-    --light-btn-hover: #dde4ee;
-    --light-btn-border: #bcc7d7;
-
-    /* Light: acentos UI */
-    --light-blue-bg: #cfe3ff;
-    --light-blue-hover: #bed9ff;
-    --light-blue-border: #8cb7ff;
-
-    /* Light: sintaxis */
-    --light-annotation-color: #7c6f00;
-    --light-keyword-color: #9b3f00;
-    --light-string-color: #2f6d2f;
-    --light-accent-blue: #2b69d1;
-    --light-method-color: #8a5200;
-
-    /* Light: estados semánticos */
-    --light-error: #d63f36;
-    --light-warning: #cf8a00;
-    --light-success: #1f8a3b;
-
     /* Filtro de icono de eliminar en dark */
     --delete-icon-filter: brightness(0) saturate(100%) invert(56%) sepia(68%) saturate(5631%) hue-rotate(325deg) brightness(106%) contrast(101%);
+    /* Filtro de iconos del tool strip (dark) */
+    --tool-icon-filter: brightness(0) saturate(100%) invert(76%) sepia(11%) saturate(286%) hue-rotate(170deg) brightness(90%) contrast(90%);
     /* Filtro del icono de tema (sol) para mantenerlo amarillo */
     --sun-icon-filter: brightness(0) saturate(100%) invert(80%) sepia(64%) saturate(1786%) hue-rotate(344deg) brightness(103%) contrast(103%);
     /* Filtros fijos para iconos del árbol de archivos */
     --tree-package-filter: brightness(0) saturate(100%) invert(80%) sepia(64%) saturate(1786%) hue-rotate(344deg) brightness(103%) contrast(103%);
     --tree-java-filter: brightness(0) saturate(100%) invert(62%) sepia(60%) saturate(2724%) hue-rotate(349deg) brightness(98%) contrast(95%);
     --tree-readme-filter: brightness(0) saturate(100%) invert(53%) sepia(89%) saturate(1049%) hue-rotate(183deg) brightness(96%) contrast(95%);
+
+    /* Splash */
+    --color-splash-start: #232526;
+    --color-splash-mid: #2f3133;
+    --color-splash-end: #1f2022;
 }
 
 /* Solo se sobreescribe este token cuando el tema activo es light. */
 body[data-theme='light'] {
+    /* Superficies y bordes */
+    --color-bg-base: #f5f7fa;
+    --color-bg-surface: #e9edf3;
+    --color-bg-editor: #ffffff;
+    --color-bg-toolstrip: #dde3ec;
+    --color-bg-hover: #d6deea;
+    --color-border: #c3ccd9;
+    --color-border-soft: #d1d9e5;
+
+    /* Texto */
+    --color-text: #2f3847;
+    --color-text-muted: #677182;
+    --color-text-soft: #4d5766;
+    --color-text-strong: #ffffff;
+
+    /* Controles/acento */
+    --color-control-bg: #e9edf3;
+    --color-control-hover: #dde4ee;
+    --color-control-border: #bcc7d7;
+    --color-accent-bg: #cfe3ff;
+    --color-accent-hover: #bed9ff;
+    --color-accent-border: #8cb7ff;
+    --color-border-strong: #b5c0d0;
+    --color-border-subtle: #c7d1df;
+
+    /* Sintaxis */
+    --color-code-annotation: #7c6f00;
+    --color-code-keyword: #9b3f00;
+    --color-code-string: #2f6d2f;
+    --color-accent-info: #2b69d1;
+    --color-code-method: #8a5200;
+    --color-code-identifier: #6d4ca0;
+
+    /* Texto auxiliar */
+    --color-text-dim: #677182;
+    --color-text-dimmer: #7f8a99;
+
+    /* En light: iconos del tool strip en negro */
+    --tool-icon-filter: brightness(0) saturate(100%) invert(0%) sepia(0%) saturate(0%) hue-rotate(0deg) brightness(0%) contrast(100%);
+
     --delete-icon-filter: brightness(0) saturate(100%) invert(34%) sepia(99%) saturate(1140%) hue-rotate(338deg) brightness(92%) contrast(95%);
-}
-
-/* Animación utilizada por el panel de alta de tareas. */
-@keyframes slideDown {
-    from {
-        opacity: 0;
-        transform: translateY(-10px);
-    }
-
-    to {
-        opacity: 1;
-        transform: translateY(0);
-    }
 }

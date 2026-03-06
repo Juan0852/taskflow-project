@@ -8,14 +8,14 @@
     <link rel="stylesheet" href="/src/style.css">
 </head>
 
-<body class="flex h-screen flex-col overflow-hidden bg-[var(--darcula-bg)] font-['JetBrains_Mono','Menlo',monospace] text-[var(--darcula-text)]">
-    <div id="startup-splash" class="startup-splash fixed inset-0 z-[9999] flex items-center justify-center bg-[linear-gradient(160deg,#232526_0%,#2f3133_45%,#1f2022_100%)] opacity-0 invisible transition-[opacity,visibility] duration-[350ms] ease-[ease]">
+<body class="flex h-screen flex-col overflow-hidden bg-[var(--color-bg-base)] font-['JetBrains_Mono','Menlo',monospace] text-[var(--color-text)]">
+    <div id="startup-splash" class="startup-splash fixed inset-0 z-[9999] flex items-center justify-center bg-[linear-gradient(160deg,var(--color-splash-start)_0%,var(--color-splash-mid)_45%,var(--color-splash-end)_100%)] opacity-0 invisible transition-[opacity,visibility] duration-[350ms] ease-[ease]">
         <div class="startup-splash-card p-[10px] text-center">
             <img src="/assets/SplashScreenBiTask.png" alt="BiTask" class="startup-splash-image h-auto max-w-full object-contain w-[min(72vw,620px)]">
         </div>
     </div>
 
-    <header class="main-window-header flex items-center gap-5 border-b border-[var(--darcula-border)] bg-[var(--darcula-sidebar)] px-[15px] py-2">
+    <header class="main-window-header flex items-center gap-5 border-b border-[var(--color-border)] bg-[var(--color-bg-surface)] px-[15px] py-2">
         <div class="window-controls flex gap-2">
             <span class="dot red h-3 w-3 cursor-pointer rounded-full bg-[var(--mac-red)]" onclick="alert('¿Qué haces? Ponte a trabajar...')"></span>
             <span class="dot yellow h-3 w-3 cursor-pointer rounded-full bg-[var(--mac-yellow)]" onclick="alert('¿De nuevo tú?')"></span>
@@ -27,7 +27,7 @@
                 <span> BiTask - Task Manager ▼</span>
             </div>
             <div class="gitBranch flex items-center gap-2 text-[0.85rem]">
-                <img src="/assets/PullRequest.png" alt="Git" class="imageGitBranch h-7 w-7 object-contain text-[var(--darcula-text)]">
+                <img src="/assets/PullRequest.png" alt="Git" class="imageGitBranch h-7 w-7 object-contain text-[var(--color-text)] [filter:var(--tool-icon-filter)]">
                 <span>feature/develop</span>
             </div>
         </div>
@@ -35,37 +35,37 @@
     </header>
 
     <div class="main-layout flex flex-1 overflow-hidden">
-        <aside class="tool-window-strip flex h-full w-[45px] flex-col items-center gap-[15px] border-r border-[var(--darcula-border)] bg-[var(--darcula-tool-bg)] pb-[90px] pt-[15px]">
-            <img src="/assets/Folder.png" id="tool-project" alt="Project Files" class="tool-icon icon-tint active h-[30px] w-[30px] cursor-pointer text-[var(--darcula-text)] opacity-100 transition-[opacity] duration-200 border-l-2 border-[var(--darcula-text-white)]">
-            <img src="/assets/Commit.png" id="tool-git" alt="Git Commits" class="tool-icon icon-tint h-[30px] w-[30px] cursor-pointer text-[var(--darcula-text)] opacity-60 transition-[opacity] duration-200">
-            <img src="/assets/Structure.png" id="tool-structure" alt="Code Structure" class="tool-icon icon-tint h-[30px] w-[30px] cursor-pointer text-[var(--darcula-text)] opacity-60 transition-[opacity] duration-200">
-            <img src="/assets/More.png" id="tool-settings" alt="Settings" class="tool-icon icon-tint h-[30px] w-[30px] cursor-pointer text-[var(--darcula-text)] opacity-60 transition-[opacity] duration-200">
-            <img src="/assets/More.png" id="tool-theme" alt="Theme Toggle" class="tool-icon icon-tint mt-auto h-[30px] w-[30px] cursor-pointer text-[var(--darcula-text)] opacity-60 transition-[opacity] duration-200 [filter:var(--sun-icon-filter)]" title="Cambiar tema (Dark/Light)">
-            <img src="/assets/Terminal.png" id="tool-terminal" alt="Terminal" class="tool-icon icon-tint mt-0 h-[30px] w-[30px] cursor-pointer text-[var(--darcula-text)] opacity-60 transition-[opacity] duration-200">
+        <aside class="tool-window-strip flex h-full w-[45px] flex-col items-center gap-[15px] border-r border-[var(--color-border)] bg-[var(--color-bg-toolstrip)] pb-[90px] pt-[15px]">
+            <img src="/assets/Folder.png" id="tool-project" alt="Project Files" class="tool-icon icon-tint active h-[30px] w-[30px] cursor-pointer text-[var(--color-text)] opacity-100 border-l-2 border-[var(--color-text-strong)] [filter:var(--tool-icon-filter)]">
+            <img src="/assets/Commit.png" id="tool-git" alt="Git Commits" class="tool-icon icon-tint h-[30px] w-[30px] cursor-pointer text-[var(--color-text)] opacity-60 [filter:var(--tool-icon-filter)]">
+            <img src="/assets/Structure.png" id="tool-structure" alt="Code Structure" class="tool-icon icon-tint h-[30px] w-[30px] cursor-pointer text-[var(--color-text)] opacity-60 [filter:var(--tool-icon-filter)]">
+            <img src="/assets/More.png" id="tool-settings" alt="Settings" class="tool-icon icon-tint h-[30px] w-[30px] cursor-pointer text-[var(--color-text)] opacity-60 [filter:var(--tool-icon-filter)]">
+            <img src="/assets/More.png" id="tool-theme" alt="Theme Toggle" class="tool-icon icon-tint mt-auto h-[30px] w-[30px] cursor-pointer text-[var(--color-text)] opacity-60 [filter:var(--sun-icon-filter)]" title="Cambiar tema (Dark/Light)">
+            <img src="/assets/Terminal.png" id="tool-terminal" alt="Terminal" class="tool-icon icon-tint mt-0 h-[30px] w-[30px] cursor-pointer text-[var(--color-text)] opacity-60 [filter:var(--tool-icon-filter)]">
         </aside>
 
-        <aside class="project-view flex w-[300px] flex-col border-r border-[var(--darcula-border)] bg-[var(--darcula-sidebar)]">
+        <aside class="project-view flex w-[300px] flex-col border-r border-[var(--color-border)] bg-[var(--color-bg-surface)]">
             <div class="closer-project-view">
                 <ul class="file-tree">
-                    <li class="tree-item flex cursor-pointer items-center gap-2 px-[15px] py-[6px] text-[0.85rem] hover:bg-[var(--darcula-hover)]">
-                        <img src="/assets/Package.png" class="icon tree-icon icon-tint icon-fixed-color h-6 w-6 text-[var(--darcula-text)] [filter:var(--tree-package-filter)]" alt="Package">
+                    <li class="tree-item flex cursor-pointer items-center gap-2 px-[15px] py-[6px] text-[0.85rem] hover:bg-[var(--color-bg-hover)]">
+                        <img src="/assets/Package.png" class="icon tree-icon icon-tint icon-fixed-color h-6 w-6 text-[var(--color-text)] [filter:var(--tree-package-filter)]" alt="Package">
                         <span>src/main/java/com/bitask</span>
                     </li>
-                    <li class="tree-item indent-2 flex cursor-pointer items-center gap-2 px-[15px] py-[6px] pl-[40px] text-[0.85rem] hover:bg-[var(--darcula-hover)]">
+                    <li class="tree-item indent-2 flex cursor-pointer items-center gap-2 px-[15px] py-[6px] pl-[40px] text-[0.85rem] hover:bg-[var(--color-bg-hover)]">
                         <a href="#controller-file" class="file-link flex w-full items-center gap-2 text-inherit no-underline">
-                            <img src="/assets/Java.png" class="icon tree-icon icon-tint icon-fixed-color h-5 w-5 text-[var(--darcula-text)] [filter:var(--tree-java-filter)]" alt="Java">
+                            <img src="/assets/Java.png" class="icon tree-icon icon-tint icon-fixed-color h-5 w-5 text-[var(--color-text)] [filter:var(--tree-java-filter)]" alt="Java">
                             <span>TaskController.java</span>
                         </a>
                     </li>
-                    <li class="tree-item indent-2 flex cursor-pointer items-center gap-2 px-[15px] py-[6px] pl-[40px] text-[0.85rem] hover:bg-[var(--darcula-hover)]">
+                    <li class="tree-item indent-2 flex cursor-pointer items-center gap-2 px-[15px] py-[6px] pl-[40px] text-[0.85rem] hover:bg-[var(--color-bg-hover)]">
                         <a href="#kanban-file" class="file-link flex w-full items-center gap-2 text-inherit no-underline">
-                            <img src="/assets/Java.png" class="icon tree-icon icon-tint icon-fixed-color h-5 w-5 text-[var(--darcula-text)] [filter:var(--tree-java-filter)]" alt="Java">
+                            <img src="/assets/Java.png" class="icon tree-icon icon-tint icon-fixed-color h-5 w-5 text-[var(--color-text)] [filter:var(--tree-java-filter)]" alt="Java">
                             <span>KanbanBoard.java</span>
                         </a>
                     </li>
-                    <li class="tree-item indent-1 flex cursor-pointer items-center gap-2 px-[15px] py-[6px] pl-[25px] text-[0.85rem] hover:bg-[var(--darcula-hover)]">
+                    <li class="tree-item indent-1 flex cursor-pointer items-center gap-2 px-[15px] py-[6px] pl-[25px] text-[0.85rem] hover:bg-[var(--color-bg-hover)]">
                         <a href="#readme-file" class="file-link flex w-full items-center gap-2 text-inherit no-underline">
-                            <img src="/assets/Book.png" class="icon tree-icon icon-tint icon-fixed-color h-5 w-5 text-[var(--darcula-text)] [filter:var(--tree-readme-filter)]" alt="Readme">
+                            <img src="/assets/Book.png" class="icon tree-icon icon-tint icon-fixed-color h-5 w-5 text-[var(--color-text)] [filter:var(--tree-readme-filter)]" alt="Readme">
                             <span>Readme.md</span>
                         </a>
                     </li>
@@ -73,38 +73,38 @@
             </div>
         </aside>
 
-        <main class="code-editor flex flex-1 flex-col overflow-hidden bg-[var(--darcula-editor)]">
+        <main class="code-editor flex flex-1 flex-col overflow-hidden bg-[var(--color-bg-editor)]">
             <div class="editor-canvas flex-1 overflow-y-auto" id="editor-display">
                 <section id="controller-file" class="code-page hidden w-full flex-col">
-                    <div class="tabs w-fit border-r border-[var(--darcula-border)] bg-[var(--darcula-sidebar)] px-[15px] py-2 text-[0.8rem]">TaskController.java ✕</div>
-                    <div class="controller-toolbar flex items-center gap-[15px] border-b border-[var(--darcula-border)] bg-[var(--darcula-bg)] px-[15px] py-[10px]">
-                        <button id="btn-add-gui" class="gui-btn add flex h-10 cursor-pointer items-center justify-center gap-2 rounded-[3px] border border-[var(--darcula-btn-border)] bg-[var(--darcula-btn-bg)] px-[15px] text-[var(--darcula-text-light)] transition-[background-color,border-color,color] duration-200 hover:border-[var(--darcula-blue-border)] hover:bg-[var(--darcula-btn-hover)] hover:text-[var(--darcula-text-white)]">
-                            <img src="/assets/Add.png" alt="" class="btn-icon h-[18px] w-[18px] text-[var(--darcula-text)]">
+                    <div class="tabs w-fit border-r border-[var(--color-border)] bg-[var(--color-bg-surface)] px-[15px] py-2 text-[0.8rem]">TaskController.java ✕</div>
+                    <div class="controller-toolbar flex items-center gap-[15px] border-b border-[var(--color-border)] bg-[var(--color-bg-base)] px-[15px] py-[10px]">
+                        <button id="btn-add-gui" class="gui-btn add flex h-10 cursor-pointer items-center justify-center gap-2 rounded-[3px] border border-[var(--color-control-border)] bg-[var(--color-control-bg)] px-[15px] text-[var(--color-text-soft)] transition-[background-color,border-color,color] duration-200 hover:border-[var(--color-accent-border)] hover:bg-[var(--color-control-hover)] hover:text-[var(--color-text-strong)]">
+                            <img src="/assets/Add.png" alt="" class="btn-icon h-[18px] w-[18px] text-[var(--color-text)]">
                             <span class="font-inherit text-[13px] leading-none">Nueva Tarea</span>
                         </button>
 
-                        <button id="btn-clear-gui" class="gui-btn delete flex h-10 cursor-pointer items-center justify-center gap-2 rounded-[3px] border border-[var(--darcula-btn-border)] bg-[var(--darcula-btn-bg)] px-[15px] text-[var(--darcula-text-light)] transition-[background-color,border-color,color] duration-200 hover:border-[var(--darcula-blue-border)] hover:bg-[var(--darcula-btn-hover)] hover:text-[var(--darcula-text-white)]">
-                            <img src="/assets/Trash.png" alt="" class="btn-icon h-[18px] w-[18px] text-[var(--darcula-text)]">
+                        <button id="btn-clear-gui" class="gui-btn delete flex h-10 cursor-pointer items-center justify-center gap-2 rounded-[3px] border border-[var(--color-control-border)] bg-[var(--color-control-bg)] px-[15px] text-[var(--color-text-soft)] transition-[background-color,border-color,color] duration-200 hover:border-[var(--color-accent-border)] hover:bg-[var(--color-control-hover)] hover:text-[var(--color-text-strong)]">
+                            <img src="/assets/Trash.png" alt="" class="btn-icon h-[18px] w-[18px] text-[var(--color-text)]">
                             <span class="font-inherit text-[13px] leading-none">Borrar Todas</span>
                         </button>
 
                         <input type="text" id="gui-search-task" placeholder="Buscar tareas..."
-                            class="toolbar-search-input ml-auto h-10 w-[1500px] rounded border border-solid border-[var(--darcula-border)] bg-[var(--darcula-bg)] px-3 py-[6px] font-inherit text-[13px] text-[var(--darcula-text)] outline-none transition-[border-color,box-shadow] duration-200 placeholder:italic placeholder:text-[var(--darcula-text-muted)] focus:border-[var(--darcula-blue-border)] focus:shadow-[0_0_0_2px_rgba(75,110,175,0.3)]">
+                            class="toolbar-search-input ml-auto h-10 w-[1500px] rounded border border-solid border-[var(--color-border)] bg-[var(--color-bg-base)] px-3 py-[6px] font-inherit text-[13px] text-[var(--color-text)] outline-none transition-[border-color,box-shadow] duration-200 placeholder:italic placeholder:text-[var(--color-text-muted)] focus:border-[var(--color-accent-border)] focus:shadow-[0_0_0_2px_rgba(75,110,175,0.3)]">
                     </div>
-                    <div id="gui-add-panel" class="form-add-panel hidden flex-col gap-[10px] border-b-2 border-[var(--darcula-bg)] bg-[var(--darcula-sidebar)] px-[15px] py-3 animate-[slideDown_0.2s_ease-out]">
+                    <div id="gui-add-panel" class="form-add-panel hidden flex-col gap-[10px] border-b-2 border-[var(--color-bg-base)] bg-[var(--color-bg-surface)] px-[15px] py-3 animate-slide-down">
                         <div class="add-panel-body flex items-center gap-[10px]">
                             <input type="text" id="gui-task-name" placeholder="Descripción de la tarea..."
-                                class="add-panel-input flex-grow border border-[var(--darcula-border-light)] bg-[var(--darcula-bg)] px-[10px] py-[6px] font-['JetBrains_Mono',monospace] text-[var(--darcula-text)] outline-none focus:border-[var(--darcula-blue-border)]">
+                                class="add-panel-input flex-grow border border-[var(--color-border-soft)] bg-[var(--color-bg-base)] px-[10px] py-[6px] font-['JetBrains_Mono',monospace] text-[var(--color-text)] outline-none focus:border-[var(--color-accent-border)]">
 
-                            <select id="gui-task-priority" class="add-panel-select cursor-pointer border border-[var(--darcula-border-light)] bg-[var(--darcula-sidebar)] p-[5px] text-[var(--darcula-text)]">
+                            <select id="gui-task-priority" class="add-panel-select cursor-pointer border border-[var(--color-border-soft)] bg-[var(--color-bg-surface)] p-[5px] text-[var(--color-text)]">
                                 <option value="baja">Baja</option>
                                 <option value="media" selected>Media</option>
                                 <option value="alta">Alta</option>
                             </select>
                         </div>
                         <div class="add-panel-footer flex justify-end gap-[10px]">
-                            <button id="btn-confirm-add" class="add-panel-btn-confirm cursor-pointer border border-[var(--darcula-blue-border)] bg-[var(--darcula-blue-bg)] px-3 py-1 text-[var(--darcula-text-light)] transition-colors duration-200 hover:bg-[var(--darcula-blue-hover)] hover:text-[var(--darcula-text-white)]">Añadir Tarea</button>
-                            <button id="btn-cancel-add" class="add-panel-btn-cancel cursor-pointer border border-[var(--darcula-border-light)] bg-transparent px-3 py-1 text-[var(--darcula-text-light)] hover:bg-[var(--darcula-hover)]">Cancelar</button>
+                            <button id="btn-confirm-add" class="add-panel-btn-confirm cursor-pointer border border-[var(--color-accent-border)] bg-[var(--color-accent-bg)] px-3 py-1 text-[var(--color-text-soft)] transition-colors duration-200 hover:bg-[var(--color-accent-hover)] hover:text-[var(--color-text-strong)]">Añadir Tarea</button>
+                            <button id="btn-cancel-add" class="add-panel-btn-cancel cursor-pointer border border-[var(--color-border-soft)] bg-transparent px-3 py-1 text-[var(--color-text-soft)] hover:bg-[var(--color-bg-hover)]">Cancelar</button>
                         </div>
                     </div>
 
@@ -114,25 +114,25 @@
                 </section>
 
                 <section id="kanban-file" class="code-page hidden w-full flex-col">
-                    <div class="tabs w-fit border-r border-[var(--darcula-border)] bg-[var(--darcula-sidebar)] px-[15px] py-2 text-[0.8rem]">KanbanBoard.java ✕</div>
+                    <div class="tabs w-fit border-r border-[var(--color-border)] bg-[var(--color-bg-surface)] px-[15px] py-2 text-[0.8rem]">KanbanBoard.java ✕</div>
                     <div class="kanban-board" id="kanban-display"></div>
                 </section>
                 <section id="readme-file" class="code-page flex w-full flex-col">
-                    <div class="tabs w-fit border-r border-[var(--darcula-border)] bg-[var(--darcula-sidebar)] px-[15px] py-2 text-[0.8rem]">Readme.md</div>
+                    <div class="tabs w-fit border-r border-[var(--color-border)] bg-[var(--color-bg-surface)] px-[15px] py-2 text-[0.8rem]">Readme.md</div>
                     <div id="manual-content-container"></div>
                 </section>
             </div>
 
-            <section id="terminal-file" class="terminal-window flex h-[250px] flex-col border-t-2 border-[var(--darcula-border)] bg-[var(--darcula-bg)]">
-                <div class="tabs w-fit border-r border-[var(--darcula-border)] bg-[var(--darcula-sidebar)] px-[15px] py-2 text-[0.8rem]">Terminal Logs ✕</div>
-                <div class="log-output flex-1 overflow-y-auto p-[10px] text-[0.8rem] text-[var(--darcula-text-light)]" id="terminal-logs-display">
-                    <span class="info text-[var(--accent-blue)]">INFO</span> - BiTask Kernel v1.0 [Oso de Anteojos] loaded. <br>
+            <section id="terminal-file" class="terminal-window flex h-[250px] flex-col border-t-2 border-[var(--color-border)] bg-[var(--color-bg-base)]">
+                <div class="tabs w-fit border-r border-[var(--color-border)] bg-[var(--color-bg-surface)] px-[15px] py-2 text-[0.8rem]">Terminal Logs ✕</div>
+                <div class="log-output flex-1 overflow-y-auto p-[10px] text-[0.8rem] text-[var(--color-text-soft)]" id="terminal-logs-display">
+                    <span class="info text-[var(--color-accent-info)]">INFO</span> - BiTask Kernel v1.0 [Oso de Anteojos] loaded. <br>
                     <span class="success text-[var(--mac-green)]">SUCCESS</span> - Bienvenido a tu gestor de tareas favorito.<br>
                     Si necesitas mas informacion o una guia rapida: /bitask -help <br>
                 </div>
-                <div class="terminal-input-line flex items-center border-t border-[var(--darcula-border)] px-[15px] py-[5px]">
-                    <span class="prompt pl-[10px] text-[15px] text-[var(--string-color)]">bitask@colombia:~$</span>
-                    <input type="text" id="cli-input" autocomplete="off" class="flex-1 border-0 bg-transparent font-inherit text-[15px] text-[var(--darcula-text-white)] outline-none [caret-shape:block]">
+                <div class="terminal-input-line flex items-center border-t border-[var(--color-border)] px-[15px] py-[5px]">
+                    <span class="prompt pl-[10px] text-[15px] text-[var(--color-code-string)]">bitask@colombia:~$</span>
+                    <input type="text" id="cli-input" autocomplete="off" class="flex-1 border-0 bg-transparent font-inherit text-[15px] text-[var(--color-text-strong)] outline-none [caret-shape:block]">
                 </div>
             </section>
         </main>

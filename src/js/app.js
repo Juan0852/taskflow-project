@@ -60,7 +60,6 @@ document.addEventListener('DOMContentLoaded', () => {
         btn: null,
         iconLight: '/assets/Light.png',
         iconDark: '/assets/Dark.png',
-        darkIconClass: 'filter-[brightness(0)_saturate(100%)_invert(76%)_sepia(11%)_saturate(286%)_hue-rotate(170deg)_brightness(90%)_contrast(90%)]',
 
         _getStoredTheme() {
             try {
@@ -96,7 +95,6 @@ document.addEventListener('DOMContentLoaded', () => {
             document.body.setAttribute('data-theme', safeTheme);
             this._saveTheme(safeTheme);
             this._updateThemeButton(safeTheme);
-            this._updateIconTint(safeTheme);
         },
 
         _updateThemeButton(activeTheme) {
@@ -114,13 +112,7 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         },
 
-        _updateIconTint(activeTheme) {
-            const icons = document.querySelectorAll('.icon-tint:not(#tool-theme):not(.icon-fixed-color)');
-            icons.forEach((icon) => {
-                const shouldDarkFilter = activeTheme !== 'light';
-                icon.classList.toggle(this.darkIconClass, shouldDarkFilter);
-            });
-        }
+        _updateIconTint() {}
     };
 
     // Pantalla de arranque (2s)

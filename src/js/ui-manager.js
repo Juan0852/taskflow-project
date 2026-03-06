@@ -45,15 +45,15 @@ export const UIManager = {
 
         // 2. Creamos el encabezado de Java (Siempre presente)
         const header = document.createElement('div');
-        header.className = "border-b border-solid border-[#333] px-[15px] py-[10px] font-mono text-[14px]";
+        header.className = "border-b border-solid border-[var(--color-border-strong)] px-[15px] py-[10px] font-mono text-[14px]";
         //Se podria crear un estilo en especifico para este header en el css pero me da pereza...
-        header.innerHTML = `<span class="text-[var(--keyword-color)]">private</span> <span class="text-[var(--darcula-text)]">List&lt;Task&gt;</span> <span class="text-[#9876aa]">storage</span> = <span class="text-[var(--keyword-color)]">new</span> <span class="text-[var(--darcula-text)]">ArrayList</span>&lt;&gt;();`;
+        header.innerHTML = `<span class="text-[var(--color-code-keyword)]">private</span> <span class="text-[var(--color-text)]">List&lt;Task&gt;</span> <span class="text-[var(--color-code-identifier)]">storage</span> = <span class="text-[var(--color-code-keyword)]">new</span> <span class="text-[var(--color-text)]">ArrayList</span>&lt;&gt;();`;
         container.appendChild(header);
 
         // 3. Si no hay tareas, añadimos el comentario de vacío debajo del header
         if (tasks.length === 0) {
             const emptyMsg = document.createElement('div');
-            emptyMsg.className = "p-5 italic text-[#555]";
+            emptyMsg.className = "p-5 italic text-[var(--color-text-dim)]";
             emptyMsg.innerText = "// No hay tareas en el buffer...";
             container.appendChild(emptyMsg);
             return;
@@ -62,14 +62,14 @@ export const UIManager = {
         // 4. Logica original: Dibujamos las filas de tareas
         tasks.forEach(task => {
             const taskRow = document.createElement('div');
-            taskRow.className = `tree-item task-row prio-${task.priority} flex items-center justify-between hover:bg-[var(--darcula-hover)]`;
+            taskRow.className = `tree-item task-row prio-${task.priority} flex items-center justify-between hover:bg-[var(--color-bg-hover)]`;
 
             const taskContent = document.createElement('div');
             taskContent.innerHTML = `
-            <span class="keyword text-[var(--keyword-color)]">#${task.id}</span>
-            <span class="method text-[var(--method-color)]">[${task.priority.toUpperCase()}]</span>
-            <span class="string text-[var(--string-color)]">"${task.text}"</span>
-            <span class="comment text-[var(--darcula-text-muted)]">// ${task.createdAt}</span>
+            <span class="keyword text-[var(--color-code-keyword)]">#${task.id}</span>
+            <span class="method text-[var(--color-code-method)]">[${task.priority.toUpperCase()}]</span>
+            <span class="string text-[var(--color-code-string)]">"${task.text}"</span>
+            <span class="comment text-[var(--color-text-muted)]">// ${task.createdAt}</span>
             `;
 
             const deleteBtn = document.createElement('button');
@@ -108,7 +108,7 @@ export const UIManager = {
         const entry = document.createElement('div');
         entry.className = 'log-line mb-1 leading-[1.4]';
         entry.innerHTML = `
-            <div><span class="info text-[var(--accent-blue)]">➜</span> <span class="user-cmd text-[var(--darcula-text-white)]">${this._escapeHTML(input)}</span></div>
+            <div><span class="info text-[var(--color-accent-info)]">➜</span> <span class="user-cmd text-[var(--color-text-strong)]">${this._escapeHTML(input)}</span></div>
             <div class="terminal-response pl-[15px]">${response}</div>
         `;
 
@@ -141,7 +141,7 @@ export const UIManager = {
         if (!terminalButton) return;
 
         terminalButton.classList.toggle('border-l-2', isActive);
-        terminalButton.classList.toggle('border-[var(--darcula-text-white)]', isActive);
+        terminalButton.classList.toggle('border-[var(--color-text-strong)]', isActive);
         terminalButton.classList.toggle('opacity-100', isActive);
         terminalButton.classList.toggle('opacity-60', !isActive);
     },
@@ -205,9 +205,9 @@ export const UIManager = {
             const isActive = href === `#${tabId}`;
             const treeItem = link.closest('.tree-item');
             if (treeItem) {
-                treeItem.classList.toggle('bg-[var(--darcula-hover)]', isActive);
+                treeItem.classList.toggle('bg-[var(--color-bg-hover)]', isActive);
                 treeItem.classList.toggle('border-l-2', isActive);
-                treeItem.classList.toggle('border-[var(--accent-blue)]', isActive);
+                treeItem.classList.toggle('border-[var(--color-accent-info)]', isActive);
             }
         });
     }

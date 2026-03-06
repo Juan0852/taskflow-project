@@ -9,19 +9,19 @@ Es verdad que se pudieron haber llamado desde el style.ccs pero... meh, esto es 
 Ademas, asi se pueden usar variables de color directamente desde JS sin necesidad de CSS custom properties.
 */
 const TW = {
-    baseText: 'text-[var(--darcula-text)]',
-    keyword: 'text-[var(--keyword-color)]',
-    method: 'text-[var(--method-color)]',
-    string: 'text-[var(--string-color)]',
-    comment: 'text-[var(--darcula-text-muted)]',
-    accent: 'text-[#9876aa]',
-    muted: 'text-[#808080]'
+    baseText: 'text-[var(--color-text)]',
+    keyword: 'text-[var(--color-code-keyword)]',
+    method: 'text-[var(--color-code-method)]',
+    string: 'text-[var(--color-code-string)]',
+    comment: 'text-[var(--color-text-muted)]',
+    accent: 'text-[var(--color-code-identifier)]',
+    muted: 'text-[var(--color-text-dimmer)]'
 };
 
 export const BITASK_MANUAL = `
-<div class="manual-content bg-[var(--darcula-bg)] p-5 font-['JetBrains_Mono',monospace] leading-[1.6] ${TW.baseText}">
-    <h2 class="border-b border-solid border-[#555] pb-[10px] ${TW.baseText}">📖 BiTask Documentation v1.0</h2>
-    <section class="mt-[15px] rounded bg-[var(--darcula-sidebar)] p-[15px] border-l-4 border-solid border-[var(--keyword-color)]">
+<div class="manual-content bg-[var(--color-bg-base)] p-5 font-['JetBrains_Mono',monospace] leading-[1.6] ${TW.baseText}">
+    <h2 class="border-b border-solid border-[var(--color-text-dim)] pb-[10px] ${TW.baseText}">📖 BiTask Documentation v1.0</h2>
+    <section class="mt-[15px] rounded bg-[var(--color-bg-surface)] p-[15px] border-l-4 border-solid border-[var(--color-code-keyword)]">
         <h4 class="mb-[10px] ${TW.keyword}">💡 Nota del Sistema</h4>
         <p class="m-0 text-[13px]">La ventana principal de vistas es <strong>taskcontroller.js</strong>. Si quieres comenzar a planear tus tareas, puedes cambiar allí con <span class="keyword ${TW.keyword}">Alt + 1</span> o directamente clicando en el explorador lateral.</p>
     </section>
@@ -30,43 +30,45 @@ export const BITASK_MANUAL = `
         <h3 class="${TW.keyword}">[1] Comandos de Terminal</h3>
         <p class="${TW.muted}">// Todos los comandos deben empezar con /bitask</p>
         
-        <table class="mb-5 w-full border-collapse text-[13px]">
-            <tr class="border-b border-solid border-[#333] bg-[var(--darcula-sidebar)]">
+        <div class="mb-5 overflow-hidden rounded-md border border-solid border-[var(--color-border-strong)]">
+        <table class="w-full border-collapse text-[13px]">
+            <tr class="border-b border-solid border-[var(--color-border-subtle)] bg-[var(--color-bg-surface)]">
                 <th class="p-[10px] text-left ${TW.accent}">Acción</th>
                 <th class="p-[10px] text-left ${TW.accent}">Flags Disponibles</th>
                 <th class="p-[10px] text-left ${TW.accent}">Ejemplo</th>
             </tr>
-            <tr class="border-b border-solid border-[#333]">
+            <tr class="border-b border-solid border-[var(--color-border-subtle)]">
                 <td class="p-[10px]"><span class="keyword ${TW.keyword}">Añadir</span></td>
                 <td class="p-[10px]"><span class="method ${TW.method}">-a</span> | <span class="method ${TW.method}">-add</span></td>
                 <td class="p-[10px]"><span class="string ${TW.string}">/bitask -a "Tarea" -p alta</span></td>
             </tr>
-            <tr class="border-b border-solid border-[#333]">
+            <tr class="border-b border-solid border-[var(--color-border-subtle)]">
                 <td class="p-[10px]"><span class="keyword ${TW.keyword}">Prioridad</span></td>
                 <td class="p-[10px]"><span class="method ${TW.method}">-p</span> | <span class="method ${TW.method}">-priority</span></td>
                 <td class="p-[10px]"><span class="comment ${TW.comment}">(alta | media | baja)</span></td>
             </tr>
-            <tr class="border-b border-solid border-[#333]">
+            <tr class="border-b border-solid border-[var(--color-border-subtle)]">
                 <td class="p-[10px]"><span class="keyword ${TW.keyword}">Eliminar</span></td>
                 <td class="p-[10px]"><span class="method ${TW.method}">-rm</span> | <span class="method ${TW.method}">-remove</span></td>
                 <td class="p-[10px]"><span class="string ${TW.string}">/bitask -rm 1</span></td>
             </tr>
-            <tr class="border-b border-solid border-[#333]">
+            <tr class="border-b border-solid border-[var(--color-border-subtle)]">
                 <td class="p-[10px]"><span class="keyword ${TW.keyword}">Actualizar</span></td>
                 <td class="p-[10px]"><span class="method ${TW.method}">-u</span> | <span class="method ${TW.method}">-update</span></td>
                 <td class="p-[10px]"><span class="string ${TW.string}">/bitask -u 1 -n "Nuevo"</span></td>
             </tr>
-            <tr>
+            <tr class="border-b border-solid border-[var(--color-border-subtle)]">
                 <td class="p-[10px]"><span class="keyword ${TW.keyword}">Limpiar</span></td>
                 <td class="p-[10px]"><span class="method ${TW.method}">clear</span></td>
                 <td class="p-[10px]"><span class="string ${TW.string}">clear</span></td>
             </tr>
-            <tr class="border-b border-solid border-[#333]">
+            <tr>
                 <td class="p-[10px]"><span class="keyword ${TW.keyword}">Ayuda</span></td>
                 <td class="p-[10px]"><span class="method ${TW.method}">-h</span> | <span class="method ${TW.method}">-help</span></td>
                 <td class="p-[10px]"><span class="string ${TW.string}">/bitask -h</span></td>
             </tr>
         </table>
+        </div>
     </section>
 
     <section class="mt-[25px]">
@@ -104,7 +106,7 @@ export const HELP_TERMINAL = `
 `;
 
 export const BITASK_KANBAN = `
-<div class="manual-content bg-[var(--darcula-bg)] p-5 font-['JetBrains_Mono',monospace] leading-[1.6] ${TW.baseText}">
+<div class="manual-content bg-[var(--color-bg-base)] p-5 font-['JetBrains_Mono',monospace] leading-[1.6] ${TW.baseText}">
     <h3 class="mb-[10px] ${TW.keyword}">Kanban</h3>
     <p class="m-0 ${TW.muted}">En próximas actualizaciones se añadirá la vista Kanban. Espérala con ansias.</p>
 </div>
