@@ -76,12 +76,20 @@ const UIManager = {
             `;
 
             const deleteBtn = document.createElement('button');
-            deleteBtn.innerHTML = '🗑️';
             deleteBtn.className = 'btn-delete-single';
             deleteBtn.style.background = 'transparent';
             deleteBtn.style.border = 'none';
             deleteBtn.style.cursor = 'pointer';
+            deleteBtn.style.display = 'inline-flex';
+            deleteBtn.style.alignItems = 'center';
+            deleteBtn.style.justifyContent = 'center';
             deleteBtn.title = 'Eliminar Tarea';
+
+            const deleteIcon = document.createElement('img');
+            deleteIcon.src = '/assets/TrashOne.png';
+            deleteIcon.alt = 'Eliminar';
+            deleteIcon.className = 'btn-delete-icon';
+            deleteBtn.appendChild(deleteIcon);
 
             deleteBtn.addEventListener('click', () => {
                 if (confirm(`¿Estás seguro de que quieres borrar la tarea #${task.id}?`)) {

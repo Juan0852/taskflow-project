@@ -81,6 +81,10 @@
     --light-error: #d63f36;
     --light-warning: #cf8a00;
     --light-success: #1f8a3b;
+
+    /* Tint del icono de eliminar (dark/error) */
+    --delete-icon-filter: brightness(0) saturate(100%) invert(56%) sepia(68%) saturate(5631%) hue-rotate(325deg) brightness(106%) contrast(101%);
+
 }
 
 * {
@@ -192,8 +196,8 @@ body {
 }
 
 .imageGitBranch {
-    width: 22px;
-    height: 22px;
+    width: 28px;
+    height: 28px;
     object-fit: contain;
     color: var(--darcula-text);
 }
@@ -219,12 +223,25 @@ body {
 }
 
 .tool-icon {
-    width: 24px;
-    height: 24px;
+    width: 30px;
+    height: 30px;
     cursor: pointer;
     opacity: 0.6;
     transition: 0.2s;
     color: var(--darcula-text);
+}
+
+/* Tint reusable por ícono (no global) */
+.icon-tint {
+    filter: brightness(0) saturate(100%) invert(76%) sepia(11%) saturate(286%) hue-rotate(170deg) brightness(90%) contrast(90%);
+}
+
+body[data-theme='light'] .icon-tint {
+    filter: none;
+}
+
+body[data-theme='light'] {
+    --delete-icon-filter: brightness(0) saturate(100%) invert(34%) sepia(99%) saturate(1140%) hue-rotate(338deg) brightness(92%) contrast(95%);
 }
 
 .tool-icon.active {
@@ -282,6 +299,11 @@ body {
     width: 16px;
     height: 16px;
     color: var(--darcula-text);
+}
+
+.tree-icon {
+    width: 20px;
+    height: 20px;
 }
 
 /* 4. EDITOR DE CÓDIGO */
@@ -530,6 +552,13 @@ pre {
     width: 18px;
     height: 18px;
     color: var(--darcula-text);
+}
+
+.btn-delete-icon {
+    width: 20px;
+    height: 20px;
+    display: block;
+    filter: var(--delete-icon-filter);
 }
 
 .toolbar-search-input {

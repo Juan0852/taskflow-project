@@ -53,12 +53,8 @@ document.addEventListener('DOMContentLoaded', () => {
     const ThemeControl = {
         storageKey: 'bitask_theme',
         btn: null,
-        iconSun:
-            'data:image/svg+xml;utf8,' +
-            encodeURIComponent('<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="#f5c542"><circle cx="12" cy="12" r="5"/><g stroke="#f5c542" stroke-width="1.8" stroke-linecap="round"><line x1="12" y1="1.8" x2="12" y2="4.3"/><line x1="12" y1="19.7" x2="12" y2="22.2"/><line x1="1.8" y1="12" x2="4.3" y2="12"/><line x1="19.7" y1="12" x2="22.2" y2="12"/><line x1="4.6" y1="4.6" x2="6.4" y2="6.4"/><line x1="17.6" y1="17.6" x2="19.4" y2="19.4"/><line x1="4.6" y1="19.4" x2="6.4" y2="17.6"/><line x1="17.6" y1="6.4" x2="19.4" y2="4.6"/></g></svg>'),
-        iconMoon:
-            'data:image/svg+xml;utf8,' +
-            encodeURIComponent('<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="#8ea4c9"><path d="M15.9 2.7a9.5 9.5 0 1 0 5.4 16.8A8.3 8.3 0 0 1 15.9 2.7Z"/></svg>'),
+        iconLight: '/assets/Light.png',
+        iconDark: '/assets/Dark.png',
 
         _getStoredTheme() {
             try {
@@ -99,13 +95,13 @@ document.addEventListener('DOMContentLoaded', () => {
         _updateThemeButton(activeTheme) {
             if (!this.btn) return;
 
-            // Si estoy en modo dark, muestro sol (acción siguiente: pasar a light).
+            // Si estoy en modo dark, muestro icono light (acción siguiente: pasar a light).
             if (activeTheme === 'dark') {
-                this.btn.src = this.iconSun;
+                this.btn.src = this.iconLight;
                 this.btn.alt = 'Cambiar a tema light';
                 this.btn.title = 'Cambiar a tema light';
             } else {
-                this.btn.src = this.iconMoon;
+                this.btn.src = this.iconDark;
                 this.btn.alt = 'Cambiar a tema dark';
                 this.btn.title = 'Cambiar a tema dark';
             }

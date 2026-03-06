@@ -3,11 +3,11 @@
  * Gestión de datos con IDs secuenciales (1, 2, 3...).
  */
 const TaskService = {
-    // 1. CARGA INICIAL
-    _tasks: JSON.parse(localStorage.getItem('bitask_db')) || [],
+    // 1. CARGA INICIAL (defensiva para evitar romper toda la app por storage corrupto/bloqueado)
+    _tasks: [],
 
     // Recuperamos el último ID usado o empezamos en 0
-    _lastId: parseInt(localStorage.getItem('bitask_last_id')) || 0,
+    _lastId: 0,
 
     /**
      * Obtiene todas las tareas
@@ -76,12 +76,36 @@ const TaskService = {
      * Persiste los datos y el estado del contador de IDs
      */
     _save() {
-        localStorage.setItem('bitask_db', JSON.stringify(this._tasks));
-        localStorage.setItem('bitask_last_id', this._lastId.toString());
+        try {
+            localStorage.setItem('bitask_db', JSON.stringify(this._tasks));
+            localStorage.setItem('bitask_last_id', this._lastId.toString());
+        } catch (error) {
+            // Ignorado: storage no disponible o bloqueado
+        }
     },
 
     clearAll() {
         this._tasks = [];
         this._save();
+    },
+
+    init() {
+        try {
+            const rawTasks = localStorage.getItem('bitask_db');
+            const parsedTasks = rawTasks ? JSON.parse(rawTasks) : [];
+            this._tasks = Array.isArray(parsedTasks) ? parsedTasks : [];
+        } catch (error) {
+            this._tasks = [];
+        }
+
+        try {
+            const rawLastId = localStorage.getItem('bitask_last_id');
+            const parsedLastId = rawLastId ? parseInt(rawLastId, 10) : 0;
+            this._lastId = Number.isFinite(parsedLastId) ? parsedLastId : 0;
+        } catch (error) {
+            this._lastId = 0;
+        }
     }
 };
+
+TaskService.init();
