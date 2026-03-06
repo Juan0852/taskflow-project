@@ -79,7 +79,7 @@ export const UIManager = {
             const deleteIcon = document.createElement('img');
             deleteIcon.src = '/assets/TrashOne.png';
             deleteIcon.alt = 'Eliminar';
-            deleteIcon.className = 'btn-delete-icon block h-5 w-5 [filter:var(--delete-icon-filter)]';
+            deleteIcon.className = 'btn-delete-icon block h-6 w-6 [filter:var(--delete-icon-filter)]';
             deleteBtn.appendChild(deleteIcon);
 
             deleteBtn.addEventListener('click', () => {
@@ -136,6 +136,19 @@ export const UIManager = {
     /**
      * Muestra u oculta la terminal
      */
+    setTerminalButtonState(isActive) {
+        const terminalButton = document.getElementById('tool-terminal');
+        if (!terminalButton) return;
+
+        terminalButton.classList.toggle('border-l-2', isActive);
+        terminalButton.classList.toggle('border-[var(--darcula-text-white)]', isActive);
+        terminalButton.classList.toggle('opacity-100', isActive);
+        terminalButton.classList.toggle('opacity-60', !isActive);
+    },
+
+    /**
+     * Muestra u oculta la terminal
+     */
     toggleTerminal(panel) {
         if (!panel) return;
 
@@ -143,11 +156,13 @@ export const UIManager = {
         if (isHidden) {
             panel.classList.remove('hidden');
             panel.classList.add('flex');
+            this.setTerminalButtonState(true);
             const input = document.getElementById('cli-input');
             if (input) input.focus();
         } else {
             panel.classList.add('hidden');
             panel.classList.remove('flex');
+            this.setTerminalButtonState(false);
         }
     },
 

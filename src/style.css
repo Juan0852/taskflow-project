@@ -49,6 +49,7 @@
     --mac-red: #ff5f56;
     --mac-yellow: #ffbd2e;
     --mac-green: #27c93f;
+    --theme-sun-yellow: var(--mac-yellow);
 
     /* Light: fondos y bordes */
     --light-bg: #f5f7fa;
@@ -89,6 +90,12 @@
 
     /* Filtro de icono de eliminar en dark */
     --delete-icon-filter: brightness(0) saturate(100%) invert(56%) sepia(68%) saturate(5631%) hue-rotate(325deg) brightness(106%) contrast(101%);
+    /* Filtro del icono de tema (sol) para mantenerlo amarillo */
+    --sun-icon-filter: brightness(0) saturate(100%) invert(80%) sepia(64%) saturate(1786%) hue-rotate(344deg) brightness(103%) contrast(103%);
+    /* Filtros fijos para iconos del árbol de archivos */
+    --tree-package-filter: brightness(0) saturate(100%) invert(80%) sepia(64%) saturate(1786%) hue-rotate(344deg) brightness(103%) contrast(103%);
+    --tree-java-filter: brightness(0) saturate(100%) invert(62%) sepia(60%) saturate(2724%) hue-rotate(349deg) brightness(98%) contrast(95%);
+    --tree-readme-filter: brightness(0) saturate(100%) invert(53%) sepia(89%) saturate(1049%) hue-rotate(183deg) brightness(96%) contrast(95%);
 }
 
 /* Solo se sobreescribe este token cuando el tema activo es light. */

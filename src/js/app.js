@@ -46,6 +46,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const TerminalUI = {
         init(terminal) {
             if (terminal.btn && terminal.panel) {
+                UIManager.setTerminalButtonState(!terminal.panel.classList.contains('hidden'));
                 terminal.btn.addEventListener('click', () => {
                     UIManager.toggleTerminal(terminal.panel);
                 });
@@ -114,7 +115,7 @@ document.addEventListener('DOMContentLoaded', () => {
         },
 
         _updateIconTint(activeTheme) {
-            const icons = document.querySelectorAll('.icon-tint');
+            const icons = document.querySelectorAll('.icon-tint:not(#tool-theme):not(.icon-fixed-color)');
             icons.forEach((icon) => {
                 const shouldDarkFilter = activeTheme !== 'light';
                 icon.classList.toggle(this.darkIconClass, shouldDarkFilter);
