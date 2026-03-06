@@ -1,0 +1,110 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/*
+ * Base stylesheet (post-migration)
+ * Qué queda aquí:
+ * 1) Tokens globales de color/tema usados por clases Tailwind con var(...)
+ * 2) Ajuste específico de tema light para --delete-icon-filter
+ * 3) Keyframe slideDown usado por animate-[slideDown_0.2s_ease-out]
+ *
+ * Todo el layout/componente visual principal se migró a utilidades Tailwind
+ * en index.html y en los templates dinámicos de src/js.
+ */
+:root {
+    /* Dark: fondos y bordes */
+    --darcula-bg: #2b2b2b;
+    --darcula-sidebar: #3c3f41;
+    --darcula-editor: #2b2b2b;
+    --darcula-tool-bg: #313335;
+    --darcula-hover: #4e5254;
+    --darcula-border: #515151;
+    --darcula-border-light: #646464;
+
+    /* Dark: textos */
+    --darcula-text: #a9b7c6;
+    --darcula-text-muted: #7a7a7a;
+    --darcula-text-light: #bbbbbb;
+    --darcula-text-white: #ffffff;
+
+    /* Dark: botones/form */
+    --darcula-btn-bg: #3c3f41;
+    --darcula-btn-hover: #4b5052;
+    --darcula-btn-border: #5e6466;
+
+    /* Dark: acentos UI */
+    --darcula-blue-bg: #365880;
+    --darcula-blue-hover: #436995;
+    --darcula-blue-border: #4b6eaf;
+
+    /* Dark: sintaxis */
+    --annotation-color: #bbb529;
+    --keyword-color: #cc7832;
+    --string-color: #6a8759;
+    --accent-blue: #467cda;
+    --method-color: #ffc66d;
+
+    /* Dark: controles de ventana */
+    --mac-red: #ff5f56;
+    --mac-yellow: #ffbd2e;
+    --mac-green: #27c93f;
+
+    /* Light: fondos y bordes */
+    --light-bg: #f5f7fa;
+    --light-sidebar: #e9edf3;
+    --light-editor: #ffffff;
+    --light-tool-bg: #dde3ec;
+    --light-hover: #d6deea;
+    --light-border: #c3ccd9;
+    --light-border-light: #d1d9e5;
+
+    /* Light: textos */
+    --light-text: #2f3847;
+    --light-text-muted: #677182;
+    --light-text-light: #4d5766;
+    --light-text-white: #ffffff;
+
+    /* Light: botones/form */
+    --light-btn-bg: #e9edf3;
+    --light-btn-hover: #dde4ee;
+    --light-btn-border: #bcc7d7;
+
+    /* Light: acentos UI */
+    --light-blue-bg: #cfe3ff;
+    --light-blue-hover: #bed9ff;
+    --light-blue-border: #8cb7ff;
+
+    /* Light: sintaxis */
+    --light-annotation-color: #7c6f00;
+    --light-keyword-color: #9b3f00;
+    --light-string-color: #2f6d2f;
+    --light-accent-blue: #2b69d1;
+    --light-method-color: #8a5200;
+
+    /* Light: estados semánticos */
+    --light-error: #d63f36;
+    --light-warning: #cf8a00;
+    --light-success: #1f8a3b;
+
+    /* Filtro de icono de eliminar en dark */
+    --delete-icon-filter: brightness(0) saturate(100%) invert(56%) sepia(68%) saturate(5631%) hue-rotate(325deg) brightness(106%) contrast(101%);
+}
+
+/* Solo se sobreescribe este token cuando el tema activo es light. */
+body[data-theme='light'] {
+    --delete-icon-filter: brightness(0) saturate(100%) invert(34%) sepia(99%) saturate(1140%) hue-rotate(338deg) brightness(92%) contrast(95%);
+}
+
+/* Animación utilizada por el panel de alta de tareas. */
+@keyframes slideDown {
+    from {
+        opacity: 0;
+        transform: translateY(-10px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}

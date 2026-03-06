@@ -2,7 +2,7 @@
  * BiTask - Task Service [Oso de Anteojos]
  * Gestión de datos con IDs secuenciales (1, 2, 3...).
  */
-const TaskService = {
+export const TaskService = {
     // 1. CARGA INICIAL (defensiva para evitar romper toda la app por storage corrupto/bloqueado)
     _tasks: [],
 

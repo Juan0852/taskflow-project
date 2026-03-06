@@ -1,7 +1,12 @@
 /**
  * BiTask - Terminal Core Engine [Pipeline Edition]
  */
-const TerminalCore = {
+import { Commands } from './commands.js';
+import { HELP_TERMINAL } from './innerhtmls.js';
+import { TaskService } from './task-service.js';
+import { UIManager } from './ui-manager.js';
+
+export const TerminalCore = {
 
     lastCommand: "", // Nuestra "memoria" interna
     errorCount: 0,
@@ -83,7 +88,7 @@ const TerminalCore = {
         TaskService.add(taskText, priority);
         UIManager.renderTaskList(TaskService.getAll());
         this._markSuccess();
-        UIManager.printTerminalLine(raw, `<span class="success">OK:</span> Tarea creada con éxito.`);
+        UIManager.printTerminalLine(raw, `<span class="success text-[var(--mac-green)]">OK:</span> Tarea creada con éxito.`);
     },
 
     runRemove(raw) {
@@ -123,7 +128,7 @@ const TerminalCore = {
         UIManager.printTerminalLine('/bitask -help', HELP_TERMINAL);
 
         // 2. Lanza el manual visual en el editor principal
-        if (typeof UIManager !== 'undefined' && UIManager.showHelp) {
+        if (UIManager.showHelp) {
             UIManager.showHelp();
         }
     },
@@ -134,13 +139,13 @@ const TerminalCore = {
         if (this.errorCount >= 5) {
             UIManager.printTerminalLine(
                 input,
-                `<span class="error">ERROR:</span> Bro mejor relajate, prepara un café y leete la documentacion del readme.md :)`
+                `<span class="error text-[var(--mac-red)]">ERROR:</span> Bro mejor relajate, prepara un café y leete la documentacion del readme.md :)`
             );
             this.errorCount = 0;
             return;
         }
 
-        UIManager.printTerminalLine(input, `<span class="error">ERROR:</span> ${msg}`);
+        UIManager.printTerminalLine(input, `<span class="error text-[var(--mac-red)]">ERROR:</span> ${msg}`);
     },
 
     _markSuccess() {

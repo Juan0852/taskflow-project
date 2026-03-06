@@ -1,4 +1,10 @@
 // app.js - El Iniciador
+import { BITASK_KANBAN, BITASK_MANUAL } from './innerhtmls.js';
+import { Shortcuts } from './shortcuts.js';
+import { TaskService } from './task-service.js';
+import { TerminalCore } from './terminal-core.js';
+import { UIManager } from './ui-manager.js';
+
 document.addEventListener('DOMContentLoaded', () => {
 
     /** * 1. MAPEO DE ELEMENTOS DEL DOM
@@ -41,9 +47,7 @@ document.addEventListener('DOMContentLoaded', () => {
         init(terminal) {
             if (terminal.btn && terminal.panel) {
                 terminal.btn.addEventListener('click', () => {
-                    if (typeof UIManager !== 'undefined' && UIManager.toggleTerminal) {
-                        UIManager.toggleTerminal(terminal.panel);
-                    }
+                    UIManager.toggleTerminal(terminal.panel);
                 });
             }
         }
@@ -55,6 +59,7 @@ document.addEventListener('DOMContentLoaded', () => {
         btn: null,
         iconLight: '/assets/Light.png',
         iconDark: '/assets/Dark.png',
+        darkIconClass: 'filter-[brightness(0)_saturate(100%)_invert(76%)_sepia(11%)_saturate(286%)_hue-rotate(170deg)_brightness(90%)_contrast(90%)]',
 
         _getStoredTheme() {
             try {
@@ -90,6 +95,7 @@ document.addEventListener('DOMContentLoaded', () => {
             document.body.setAttribute('data-theme', safeTheme);
             this._saveTheme(safeTheme);
             this._updateThemeButton(safeTheme);
+            this._updateIconTint(safeTheme);
         },
 
         _updateThemeButton(activeTheme) {
@@ -105,6 +111,14 @@ document.addEventListener('DOMContentLoaded', () => {
                 this.btn.alt = 'Cambiar a tema dark';
                 this.btn.title = 'Cambiar a tema dark';
             }
+        },
+
+        _updateIconTint(activeTheme) {
+            const icons = document.querySelectorAll('.icon-tint');
+            icons.forEach((icon) => {
+                const shouldDarkFilter = activeTheme !== 'light';
+                icon.classList.toggle(this.darkIconClass, shouldDarkFilter);
+            });
         }
     };
 
@@ -142,11 +156,13 @@ document.addEventListener('DOMContentLoaded', () => {
                 return;
             }
 
-            splashPanel.classList.add('show');
+            splashPanel.classList.remove('invisible', 'opacity-0');
+            splashPanel.classList.add('visible', 'opacity-100');
             this._saveToken();
 
             setTimeout(() => {
-                splashPanel.classList.add('hide');
+                splashPanel.classList.remove('visible', 'opacity-100');
+                splashPanel.classList.add('invisible', 'opacity-0');
                 setTimeout(() => splashPanel.remove(), 400);
             }, 2000);
         }
@@ -179,7 +195,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
             gui.btnAdd.addEventListener('click', () => {
                 UIManager.toggleGeneric(gui.addPanel);
-                if (window.getComputedStyle(gui.addPanel).display !== 'none') {
+                if (!gui.addPanel.classList.contains('hidden')) {
                     gui.inputName.focus();
                 }
             });
@@ -202,7 +218,8 @@ document.addEventListener('DOMContentLoaded', () => {
         },
         _close(gui) {
             gui.inputName.value = '';
-            gui.addPanel.style.display = 'none';
+            gui.addPanel.classList.add('hidden');
+            gui.addPanel.classList.remove('flex');
         }
     };
 
@@ -260,10 +277,10 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Renderizado Inicial
     UIManager.renderTaskList(TaskService.getAll());
-    if (domElements.navigation.manualContainer && typeof BITASK_MANUAL !== 'undefined') {
+    if (domElements.navigation.manualContainer) {
         domElements.navigation.manualContainer.innerHTML = BITASK_MANUAL;
     }
-    if (domElements.navigation.kanbanContainer && typeof BITASK_KANBAN !== 'undefined') {
+    if (domElements.navigation.kanbanContainer) {
         domElements.navigation.kanbanContainer.innerHTML = BITASK_KANBAN;
     }
 
