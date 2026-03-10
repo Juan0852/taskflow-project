@@ -29,7 +29,78 @@ export const BITASK_MANUAL = `
     <section>
         <h3 class="${TW.keyword}">[1] Comandos de Terminal</h3>
         <p class="${TW.muted}">// Todos los comandos deben empezar con /bitask</p>
+
+        <h4 class="mb-[10px] ${TW.accent}">COMANDO ADD Y SUS FLAGS</h4>
         
+        <div class="mb-5 overflow-hidden rounded-md border border-solid border-[var(--color-border-strong)]">
+        <table class="w-full border-collapse text-[13px]">
+            <tr class="border-b border-solid border-[var(--color-border-subtle)] bg-[var(--color-bg-surface)]">
+                <th class="p-[10px] text-left ${TW.accent}">Flag</th>
+                <th class="p-[10px] text-left ${TW.accent}">Uso</th>
+                <th class="p-[10px] text-left ${TW.accent}">Ejemplo</th>
+            </tr>
+            <tr class="border-b border-solid border-[var(--color-border-subtle)]">
+                <td class="p-[10px]"><span class="method ${TW.method}">-a</span> | <span class="method ${TW.method}">-add</span></td>
+                <td class="p-[10px]">Activa la creacion de una nueva tarea.</td>
+                <td class="p-[10px]"><span class="string ${TW.string}">/bitask -a "Estudiar Tailwind"</span></td>
+            </tr>
+            <tr class="border-b border-solid border-[var(--color-border-subtle)]">
+                <td class="p-[10px]"><span class="method ${TW.method}">-p</span> | <span class="method ${TW.method}">-priority</span></td>
+                <td class="p-[10px]">Define la prioridad de la tarea. Si no se indica por GUI, queda en <span class="${TW.string}">media</span>.</td>
+                <td class="p-[10px]"><span class="string ${TW.string}">-p alta</span></td>
+            </tr>
+            <tr class="border-b border-solid border-[var(--color-border-subtle)]">
+                <td class="p-[10px]"><span class="method ${TW.method}">-t</span> | <span class="method ${TW.method}">-type</span></td>
+                <td class="p-[10px]">Define el tipo de tarea. Si no se indica, se guarda como <span class="${TW.string}">general</span>.</td>
+                <td class="p-[10px]"><span class="string ${TW.string}">-t "estudio"</span></td>
+            </tr>
+            <tr>
+                <td class="p-[10px]"><span class="method ${TW.method}">-s</span> | <span class="method ${TW.method}">-status</span></td>
+                <td class="p-[10px]">Define el estado inicial. Si no se indica, queda en <span class="${TW.string}">pendiente</span>.</td>
+                <td class="p-[10px]"><span class="string ${TW.string}">-s haciendo</span></td>
+            </tr>
+        </table>
+        </div>
+
+        <h4 class="mb-[10px] ${TW.accent}">COMANDO UPDATE Y SUS FLAGS</h4>
+
+        <div class="mb-5 overflow-hidden rounded-md border border-solid border-[var(--color-border-strong)]">
+        <table class="w-full border-collapse text-[13px]">
+            <tr class="border-b border-solid border-[var(--color-border-subtle)] bg-[var(--color-bg-surface)]">
+                <th class="p-[10px] text-left ${TW.accent}">Flag</th>
+                <th class="p-[10px] text-left ${TW.accent}">Uso</th>
+                <th class="p-[10px] text-left ${TW.accent}">Ejemplo</th>
+            </tr>
+            <tr class="border-b border-solid border-[var(--color-border-subtle)]">
+                <td class="p-[10px]"><span class="method ${TW.method}">-u</span> | <span class="method ${TW.method}">-update</span></td>
+                <td class="p-[10px]">Activa la actualizacion parcial de una tarea existente, indicando primero su ID.</td>
+                <td class="p-[10px]"><span class="string ${TW.string}">/bitask -u 1</span></td>
+            </tr>
+            <tr class="border-b border-solid border-[var(--color-border-subtle)]">
+                <td class="p-[10px]"><span class="method ${TW.method}">-n</span></td>
+                <td class="p-[10px]">Cambia unicamente el nombre/texto de la tarea.</td>
+                <td class="p-[10px]"><span class="string ${TW.string}">-n "Nuevo nombre"</span></td>
+            </tr>
+            <tr class="border-b border-solid border-[var(--color-border-subtle)]">
+                <td class="p-[10px]"><span class="method ${TW.method}">-p</span></td>
+                <td class="p-[10px]">Cambia unicamente la prioridad.</td>
+                <td class="p-[10px]"><span class="string ${TW.string}">-p alta</span></td>
+            </tr>
+            <tr class="border-b border-solid border-[var(--color-border-subtle)]">
+                <td class="p-[10px]"><span class="method ${TW.method}">-t</span> | <span class="method ${TW.method}">-type</span></td>
+                <td class="p-[10px]">Cambia unicamente el tipo de tarea.</td>
+                <td class="p-[10px]"><span class="string ${TW.string}">-t "trabajo"</span></td>
+            </tr>
+            <tr>
+                <td class="p-[10px]"><span class="method ${TW.method}">-s</span> | <span class="method ${TW.method}">-status</span></td>
+                <td class="p-[10px]">Cambia unicamente el estado de la tarea.</td>
+                <td class="p-[10px]"><span class="string ${TW.string}">-s completado</span></td>
+            </tr>
+        </table>
+        </div>
+
+        <h4 class="mb-[10px] ${TW.accent}">OTROS COMANDOS</h4>
+
         <div class="mb-5 overflow-hidden rounded-md border border-solid border-[var(--color-border-strong)]">
         <table class="w-full border-collapse text-[13px]">
             <tr class="border-b border-solid border-[var(--color-border-subtle)] bg-[var(--color-bg-surface)]">
@@ -38,24 +109,9 @@ export const BITASK_MANUAL = `
                 <th class="p-[10px] text-left ${TW.accent}">Ejemplo</th>
             </tr>
             <tr class="border-b border-solid border-[var(--color-border-subtle)]">
-                <td class="p-[10px]"><span class="keyword ${TW.keyword}">Añadir</span></td>
-                <td class="p-[10px]"><span class="method ${TW.method}">-a</span> | <span class="method ${TW.method}">-add</span></td>
-                <td class="p-[10px]"><span class="string ${TW.string}">/bitask -a "Tarea" -p alta</span></td>
-            </tr>
-            <tr class="border-b border-solid border-[var(--color-border-subtle)]">
-                <td class="p-[10px]"><span class="keyword ${TW.keyword}">Prioridad</span></td>
-                <td class="p-[10px]"><span class="method ${TW.method}">-p</span> | <span class="method ${TW.method}">-priority</span></td>
-                <td class="p-[10px]"><span class="comment ${TW.comment}">(alta | media | baja)</span></td>
-            </tr>
-            <tr class="border-b border-solid border-[var(--color-border-subtle)]">
                 <td class="p-[10px]"><span class="keyword ${TW.keyword}">Eliminar</span></td>
                 <td class="p-[10px]"><span class="method ${TW.method}">-rm</span> | <span class="method ${TW.method}">-remove</span></td>
                 <td class="p-[10px]"><span class="string ${TW.string}">/bitask -rm 1</span></td>
-            </tr>
-            <tr class="border-b border-solid border-[var(--color-border-subtle)]">
-                <td class="p-[10px]"><span class="keyword ${TW.keyword}">Actualizar</span></td>
-                <td class="p-[10px]"><span class="method ${TW.method}">-u</span> | <span class="method ${TW.method}">-update</span></td>
-                <td class="p-[10px]"><span class="string ${TW.string}">/bitask -u 1 -n "Nuevo"</span></td>
             </tr>
             <tr class="border-b border-solid border-[var(--color-border-subtle)]">
                 <td class="p-[10px]"><span class="keyword ${TW.keyword}">Limpiar</span></td>
@@ -97,9 +153,9 @@ export const BITASK_MANUAL = `
 export const HELP_TERMINAL = `
 <div class="leading-[1.4] ${TW.baseText}">
                 <span class="${TW.keyword}">Uso:</span> /bitask [comando] [flags]<br><br>
-                <span class="${TW.accent}">-a, -add</span> <span class="${TW.string}">"nombre"</span> -p <span class="${TW.string}">(alta | media | baja)</span> <span class="${TW.muted}">// Añadir</span><br>
+                <span class="${TW.accent}">-a, -add</span> <span class="${TW.string}">"nombre"</span> -p <span class="${TW.string}">(alta | media | baja)</span> -t <span class="${TW.string}">"tipo"</span> -s <span class="${TW.string}">(pendiente | haciendo | completado)</span> <span class="${TW.muted}">// Añadir</span><br>
                 <span class="${TW.accent}">-rm, -remove</span> <span class="${TW.string}">[id]</span> <span class="${TW.muted}">// Eliminar</span><br>
-                <span class="${TW.accent}">-u, -update</span> <span class="${TW.string}">[id]</span> -n <span class="${TW.string}">"nuevo nombre"</span> <span class="${TW.muted}">// Editar</span><br>
+                <span class="${TW.accent}">-u, -update</span> <span class="${TW.string}">[id]</span> -n <span class="${TW.string}">"nuevo nombre"</span> -t <span class="${TW.string}">"tipo"</span> -s <span class="${TW.string}">(pendiente | haciendo | completado)</span> <span class="${TW.muted}">// Editar</span><br>
                 <span class="${TW.accent}">-h, -help</span> <span class="${TW.muted}">// Abrir manual completo</span><br>
                 <span class="${TW.keyword}">clear</span> <span class="${TW.muted}">// Limpiar terminal</span>
             </div>

@@ -32,7 +32,9 @@ document.addEventListener('DOMContentLoaded', () => {
             // Referencias del nuevo formulario (PanelAddControl)
             addPanel: document.getElementById('gui-add-panel'),
             inputName: document.getElementById('gui-task-name'),
+            inputType: document.getElementById('gui-task-type'),
             selectPrio: document.getElementById('gui-task-priority'),
+            selectStatus: document.getElementById('gui-task-status'),
             btnConfirm: document.getElementById('btn-confirm-add'),
             btnCancel: document.getElementById('btn-cancel-add'),
             inputSearch: document.getElementById('gui-search-task')
@@ -196,8 +198,10 @@ document.addEventListener('DOMContentLoaded', () => {
             gui.btnConfirm.addEventListener('click', () => {
                 const name = gui.inputName.value.trim();
                 const priority = gui.selectPrio.value;
+                const type = gui.inputType.value.trim();
+                const status = gui.selectStatus.value;
                 if (name) {
-                    TaskService.add(name, priority);
+                    TaskService.add(name, priority, type, status);
                     UIManager.renderTaskList(TaskService.getAll());
                     this._close(gui);
                 }
@@ -211,6 +215,9 @@ document.addEventListener('DOMContentLoaded', () => {
         },
         _close(gui) {
             gui.inputName.value = '';
+            gui.inputType.value = '';
+            gui.selectStatus.value = TaskService.DEFAULT_STATUS;
+            gui.selectPrio.value = 'media';
             gui.addPanel.classList.add('hidden');
             gui.addPanel.classList.remove('flex');
         }
@@ -235,17 +242,8 @@ document.addEventListener('DOMContentLoaded', () => {
             if (!inputSearch) return;
             inputSearch.addEventListener('input', (e) => {
                 const searchTerm = e.target.value.toLowerCase().trim();
-                const allTasks = TaskService.getAll();
-
-                if (searchTerm === '') {
-                    UIManager.renderTaskList(allTasks);
-                } else {
-                    const filteredTasks = allTasks.filter(task =>
-                        task.text.toLowerCase().includes(searchTerm) ||
-                        task.id.toString().includes(searchTerm)
-                    );
-                    UIManager.renderTaskList(filteredTasks);
-                }
+                UIManager.setSearchTerm(searchTerm);
+                UIManager.renderTaskList(TaskService.getAll());
             });
         }
     };

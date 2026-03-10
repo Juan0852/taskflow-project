@@ -72,6 +72,14 @@ export const TerminalCore = {
 
     // --- MÉTODOS ESPECIALIZADOS ---
 
+    _extractQuotedValue(raw, flagName) {
+        const quotedMatch = raw.match(new RegExp(`-(?:${flagName})\\s+["'](.+?)["']`, 'i'));
+        if (quotedMatch) return quotedMatch[1];
+
+        const singleWordMatch = raw.match(new RegExp(`-(?:${flagName})\\s+([^\\s]+)`, 'i'));
+        return singleWordMatch ? singleWordMatch[1] : '';
+    },
+
     runAdd(raw) {
         const parts = raw.match(/["'](.+?)["']\s*(.*)/);
         if (!parts) return this._err(raw, "Error: El formato debe ser: -a \"tarea\" -p [prioridad]");
@@ -85,7 +93,9 @@ export const TerminalCore = {
         }
 
         const priority = prioMatch[1].toLowerCase();
-        TaskService.add(taskText, priority);
+        const type = this._extractQuotedValue(raw, 't|type');
+        const status = this._extractQuotedValue(raw, 's|status');
+        TaskService.add(taskText, priority, type, status);
         UIManager.renderTaskList(TaskService.getAll());
         this._markSuccess();
         UIManager.printTerminalLine(raw, `<span class="success text-[var(--mac-green)]">OK:</span> Tarea creada con éxito.`);
@@ -106,12 +116,16 @@ export const TerminalCore = {
         const idMatch = raw.match(/\d+/);
         const nameMatch = raw.match(/-n\s+["'](.+?)["']/);
         const prioMatch = raw.match(/-p\s+(\w+)/);
+        const type = this._extractQuotedValue(raw, 't|type');
+        const status = this._extractQuotedValue(raw, 's|status');
 
         if (!idMatch) return this._err(raw, "Falta ID");
 
         const updates = {};
         if (nameMatch) updates.text = nameMatch[1];
-        if (prioMatch) updates.priority = prioMatch[1];
+        if (prioMatch) updates.priority = prioMatch[1].toLowerCase();
+        if (type) updates.type = type;
+        if (status) updates.status = status;
 
         if (TaskService.update(parseInt(idMatch[0]), updates)) {
             UIManager.renderTaskList(TaskService.getAll());

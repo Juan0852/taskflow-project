@@ -9,7 +9,12 @@ export const UIManager = {
     elements: {
         taskContainer: document.getElementById('task-list-container'), // El area del editor
         terminalOutput: document.querySelector('.log-output'),
-        terminalInput: document.getElementById('cli-input')
+        terminalInput: document.getElementById('cli-input'),
+        typeFilters: document.getElementById('task-type-filters')
+    },
+    filters: {
+        searchTerm: '',
+        activeType: 'all'
     },
 
     /**
@@ -33,12 +38,77 @@ export const UIManager = {
         this.renderTaskList(TaskService.getAll());
     },
 
+    setSearchTerm(searchTerm) {
+        this.filters.searchTerm = searchTerm;
+    },
+
+    setActiveType(type) {
+        this.filters.activeType = type;
+    },
+
+    _getFilteredTasks(tasks) {
+        return tasks.filter(task => {
+            const matchesType = this.filters.activeType === 'all' || task.type === this.filters.activeType;
+            const search = this.filters.searchTerm;
+            const matchesSearch = !search
+                || task.text.toLowerCase().includes(search)
+                || task.id.toString().includes(search)
+                || task.type.toLowerCase().includes(search)
+                || task.status.toLowerCase().includes(search);
+
+            return matchesType && matchesSearch;
+        });
+    },
+
+    renderTypeFilters(tasks) {
+        const container = this.elements.typeFilters;
+        if (!container) return;
+
+        const types = TaskService.getAvailableTypes();
+        const filterItems = ['all', ...types];
+
+        if (this.filters.activeType !== 'all' && !types.includes(this.filters.activeType)) {
+            this.filters.activeType = 'all';
+        }
+
+        container.innerHTML = '';
+
+        filterItems.forEach(type => {
+            const button = document.createElement('button');
+            const isActive = this.filters.activeType === type;
+            button.type = 'button';
+            button.className = [
+                'whitespace-nowrap',
+                'rounded-full',
+                'border',
+                'px-3',
+                'py-1',
+                'text-[12px]',
+                'transition-colors',
+                'duration-200',
+                isActive
+                    ? 'border-[var(--color-accent-border)] bg-[var(--color-accent-bg)] text-[var(--color-text-strong)]'
+                    : 'border-[var(--color-border-soft)] bg-[var(--color-bg-surface)] text-[var(--color-text-soft)] hover:bg-[var(--color-bg-hover)]'
+            ].join(' ');
+            button.textContent = type === 'all' ? 'Todos' : type;
+            button.addEventListener('click', () => {
+                this.setActiveType(type);
+                this.renderTaskList(TaskService.getAll());
+            });
+            container.appendChild(button);
+        });
+    },
+
     /**
      * Renderiza las tareas en el "Editor Canvas" (área central)
      */
     renderTaskList(tasks) {
         const container = this.elements.taskContainer;
         if (!container) return;
+
+        const filteredTasks = this._getFilteredTasks(tasks);
+
+        this.renderTypeFilters(tasks);
 
         // 1. Limpiamos el buffer
         container.innerHTML = '';
@@ -51,23 +121,29 @@ export const UIManager = {
         container.appendChild(header);
 
         // 3. Si no hay tareas, añadimos el comentario de vacío debajo del header
-        if (tasks.length === 0) {
+        if (filteredTasks.length === 0) {
             const emptyMsg = document.createElement('div');
             emptyMsg.className = "p-5 italic text-[var(--color-text-dim)]";
-            emptyMsg.innerText = "// No hay tareas en el buffer...";
+            emptyMsg.innerText = this.filters.searchTerm || this.filters.activeType !== 'all'
+                ? "// No hay tareas que coincidan con los filtros activos..."
+                : "// No hay tareas en el buffer...";
             container.appendChild(emptyMsg);
             return;
         }
 
         // 4. Logica original: Dibujamos las filas de tareas
-        tasks.forEach(task => {
+        filteredTasks.forEach(task => {
             const taskRow = document.createElement('div');
             taskRow.className = `tree-item task-row prio-${task.priority} flex items-center justify-between hover:bg-[var(--color-bg-hover)]`;
 
             const taskContent = document.createElement('div');
+            const safeStatus = (task.status || 'pendiente').toUpperCase();
+            const safeType = task.type || TaskService.DEFAULT_TYPE;
             taskContent.innerHTML = `
             <span class="keyword text-[var(--color-code-keyword)]">#${task.id}</span>
             <span class="method text-[var(--color-code-method)]">[${task.priority.toUpperCase()}]</span>
+            <span class="text-[var(--color-code-identifier)]">{${safeType}}</span>
+            <span class="text-[var(--color-accent-info)]">&lt;${safeStatus}&gt;</span>
             <span class="string text-[var(--color-code-string)]">"${task.text}"</span>
             <span class="comment text-[var(--color-text-muted)]">// ${task.createdAt}</span>
             `;

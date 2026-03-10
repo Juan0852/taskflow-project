@@ -96,10 +96,19 @@
                             <input type="text" id="gui-task-name" placeholder="Descripción de la tarea..."
                                 class="add-panel-input flex-grow border border-[var(--color-border-soft)] bg-[var(--color-bg-base)] px-[10px] py-[6px] font-['JetBrains_Mono',monospace] text-[var(--color-text)] outline-none focus:border-[var(--color-accent-border)]">
 
+                            <input type="text" id="gui-task-type" placeholder="Tipo (estudio, trabajo...)"
+                                class="add-panel-input min-w-[180px] border border-[var(--color-border-soft)] bg-[var(--color-bg-base)] px-[10px] py-[6px] font-['JetBrains_Mono',monospace] text-[var(--color-text)] outline-none focus:border-[var(--color-accent-border)]">
+
                             <select id="gui-task-priority" class="add-panel-select cursor-pointer border border-[var(--color-border-soft)] bg-[var(--color-bg-surface)] p-[5px] text-[var(--color-text)]">
                                 <option value="baja">Baja</option>
                                 <option value="media" selected>Media</option>
                                 <option value="alta">Alta</option>
+                            </select>
+
+                            <select id="gui-task-status" class="add-panel-select cursor-pointer border border-[var(--color-border-soft)] bg-[var(--color-bg-surface)] p-[5px] text-[var(--color-text)]">
+                                <option value="pendiente" selected>Pendiente</option>
+                                <option value="haciendo">Haciendo</option>
+                                <option value="completado">Completado</option>
                             </select>
                         </div>
                         <div class="add-panel-footer flex justify-end gap-[10px]">
@@ -107,6 +116,8 @@
                             <button id="btn-cancel-add" class="add-panel-btn-cancel cursor-pointer border border-[var(--color-border-soft)] bg-transparent px-3 py-1 text-[var(--color-text-soft)] hover:bg-[var(--color-bg-hover)]">Cancelar</button>
                         </div>
                     </div>
+
+                    <div id="task-type-filters" class="flex gap-2 overflow-x-auto border-b border-[var(--color-border)] bg-[var(--color-bg-base)] px-[15px] py-[8px]"></div>
 
                     <div class="code-content">
                         <div id="task-list-container" class="task-list flex flex-col"></div>
