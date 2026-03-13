@@ -17,9 +17,6 @@ export const UIManager = {
         activeType: 'all'
     },
 
-    /**
-     * Inicializa el UI Manager con elementos del DOM
-     */
     init(navigation) {
         if (navigation && navigation.links) {
             navigation.links.forEach(link => {
@@ -38,14 +35,28 @@ export const UIManager = {
         this.renderTaskList(TaskService.getAll());
     },
 
+    /**
+     * Actualiza el término de búsqueda utilizado para filtrar tareas.
+     * @param {string} searchTerm - Texto libre que se usará para buscar en id, texto, tipo y estado.
+     */
     setSearchTerm(searchTerm) {
         this.filters.searchTerm = searchTerm;
     },
 
+    /**
+     * Cambia el tipo de tarea activo para los filtros.
+     * @param {string} type - Tipo de tarea (por ejemplo, 'all', 'bug', 'feature').
+     */
     setActiveType(type) {
         this.filters.activeType = type;
     },
 
+    /**
+     * Devuelve la lista de tareas filtradas según tipo y término de búsqueda.
+     * @param {Array<Object>} tasks - Lista completa de tareas.
+     * @returns {Array<Object>} Tareas que pasan los filtros actuales.
+     * @private
+     */
     _getFilteredTasks(tasks) {
         return tasks.filter(task => {
             const matchesType = this.filters.activeType === 'all' || task.type === this.filters.activeType;
@@ -60,6 +71,10 @@ export const UIManager = {
         });
     },
 
+    /**
+     * Renderiza los botones de filtro por tipo de tarea.
+     * @param {Array<Object>} tasks - Lista de tareas disponible (se usa para validar el tipo activo).
+     */
     renderTypeFilters(tasks) {
         const container = this.elements.typeFilters;
         if (!container) return;
@@ -100,7 +115,8 @@ export const UIManager = {
     },
 
     /**
-     * Renderiza las tareas en el "Editor Canvas" (área central)
+     * Renderiza las tareas en el "Editor Canvas" (área central).
+     * @param {Array<Object>} tasks - Lista completa de tareas que proviene de TaskService.
      */
     renderTaskList(tasks) {
         const container = this.elements.taskContainer;
@@ -175,7 +191,9 @@ export const UIManager = {
     },
 
     /**
-     * Imprime en la terminal acoplada (#terminal-file)
+     * Añade una nueva línea a la terminal acoplada (#terminal-file).
+     * @param {string} input - Comando introducido por el usuario.
+     * @param {string} response - Respuesta renderizada del sistema/servicio.
      */
     printTerminalLine(input, response) {
         const output = this.elements.terminalOutput;
@@ -194,24 +212,24 @@ export const UIManager = {
         output.scrollTop = output.scrollHeight;
     },
 
-    /**
-     * Comando clear
-     */
     clearTerminal() {
         if (this.elements.terminalOutput) {
             this.elements.terminalOutput.innerHTML = '';
         }
     },
 
+    /**
+     * Escapa HTML para evitar inyecciones al pintar strings en innerHTML.
+     * @param {string} str - Cadena potencialmente con caracteres especiales HTML.
+     * @returns {string} Cadena segura para insertar como HTML.
+     * @private
+     */
     _escapeHTML(str) {
         const p = document.createElement('p');
         p.textContent = str;
         return p.innerHTML;
     },
 
-    /**
-     * Muestra u oculta la terminal
-     */
     setTerminalButtonState(isActive) {
         const terminalButton = document.getElementById('tool-terminal');
         if (!terminalButton) return;
@@ -222,9 +240,6 @@ export const UIManager = {
         terminalButton.classList.toggle('opacity-60', !isActive);
     },
 
-    /**
-     * Muestra u oculta la terminal
-     */
     toggleTerminal(panel) {
         if (!panel) return;
 
@@ -242,9 +257,6 @@ export const UIManager = {
         }
     },
 
-    /**
-     * Muestra u oculta un panel genérico leyendo su estilo real 
-     */
     toggleGeneric(panel) {
         if (!panel) return;
 
@@ -258,9 +270,6 @@ export const UIManager = {
         }
     },
 
-    /**
-     * Cambia de pestaña (Controller / Kanban)
-     */
     switchTab(tabId) {
         const pages = document.querySelectorAll('.code-page');
         pages.forEach(page => {
@@ -271,9 +280,6 @@ export const UIManager = {
         this.setActiveFileLink(tabId);
     },
 
-    /**
-     * Sincroniza el archivo activo en el árbol lateral
-     */
     setActiveFileLink(tabId) {
         const links = document.querySelectorAll('.file-link');
         links.forEach(link => {
