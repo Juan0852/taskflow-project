@@ -3,9 +3,9 @@
  * Gestiona combinaciones de teclas globales de la aplicación.
  */
 import { TerminalCore } from './terminal-core.js';
-import { UIManager } from './ui-manager.js';
+import { UIManager } from '../../ui-manager.js';
 
-export const Shortcuts = {
+export const TerminalShortcuts = {
     initialized: false,
 
     init() {

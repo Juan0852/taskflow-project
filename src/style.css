@@ -35,8 +35,17 @@
     --color-accent-bg: #365880;
     --color-accent-hover: #436995;
     --color-accent-border: #4b6eaf;
+    --color-selection-bg: rgba(75, 110, 175, 0.12);
+    --color-selection-border: rgba(75, 110, 175, 0.75);
     --color-border-strong: #333333;
     --color-border-subtle: #3f3f3f;
+    --color-danger-bg: #5b2f34;
+    --color-danger-hover: #6a383e;
+    --color-danger-border: #8f4d56;
+    --color-danger-text: #ffe5e8;
+    --color-scrollbar-track: #2f3234;
+    --color-scrollbar-thumb: #5c6164;
+    --color-scrollbar-thumb-hover: #72787c;
 
     /* Sintaxis (Dark por defecto) */
     --color-code-annotation: #bbb529;
@@ -49,6 +58,7 @@
     /* Texto auxiliar */
     --color-text-dim: #555555;
     --color-text-dimmer: #808080;
+    --color-settings-icon: #a9b7c6;
 
     /* Dark: controles de ventana */
     --mac-red: #ff5f56;
@@ -58,6 +68,8 @@
 
     /* Filtro de icono de eliminar en dark */
     --delete-icon-filter: brightness(0) saturate(100%) invert(56%) sepia(68%) saturate(5631%) hue-rotate(325deg) brightness(106%) contrast(101%);
+    /* Filtro de iconos de acciones generales en dark */
+    --action-icon-filter: brightness(0) saturate(100%) invert(78%) sepia(8%) saturate(326%) hue-rotate(170deg) brightness(98%) contrast(88%);
     /* Filtro de iconos del tool strip (dark) */
     --tool-icon-filter: brightness(0) saturate(100%) invert(76%) sepia(11%) saturate(286%) hue-rotate(170deg) brightness(90%) contrast(90%);
     /* Filtro del icono de tema (sol) para mantenerlo amarillo */
@@ -97,8 +109,17 @@ body[data-theme='light'] {
     --color-accent-bg: #cfe3ff;
     --color-accent-hover: #bed9ff;
     --color-accent-border: #8cb7ff;
+    --color-selection-bg: rgba(140, 183, 255, 0.2);
+    --color-selection-border: rgba(79, 129, 214, 0.72);
     --color-border-strong: #b5c0d0;
     --color-border-subtle: #c7d1df;
+    --color-danger-bg: #ffe2e5;
+    --color-danger-hover: #ffd3d8;
+    --color-danger-border: #e2a0aa;
+    --color-danger-text: #8b1f2d;
+    --color-scrollbar-track: #e4e9f1;
+    --color-scrollbar-thumb: #b6c0cf;
+    --color-scrollbar-thumb-hover: #9da9ba;
 
     /* Sintaxis */
     --color-code-annotation: #7c6f00;
@@ -111,9 +132,46 @@ body[data-theme='light'] {
     /* Texto auxiliar */
     --color-text-dim: #677182;
     --color-text-dimmer: #7f8a99;
+    --color-settings-icon: #000000;
 
     /* En light: iconos del tool strip en negro */
     --tool-icon-filter: brightness(0) saturate(100%) invert(0%) sepia(0%) saturate(0%) hue-rotate(0deg) brightness(0%) contrast(100%);
+    /* En light: iconos de acciones generales en oscuro para que no desaparezcan */
+    --action-icon-filter: brightness(0) saturate(100%) invert(17%) sepia(14%) saturate(722%) hue-rotate(177deg) brightness(96%) contrast(90%);
 
     --delete-icon-filter: brightness(0) saturate(100%) invert(34%) sepia(99%) saturate(1140%) hue-rotate(338deg) brightness(92%) contrast(95%);
+}
+
+/*
+ * Scrollbars:
+ * Esto se resuelve en CSS y no con más utilidades Tailwind porque no queremos
+ * introducir plugins adicionales ni forzar más clases arbitrarias para un
+ * detalle visual que aquí controlamos mejor con pseudo-elementos nativos.
+ */
+* {
+    scrollbar-width: thin;
+    scrollbar-color: var(--color-scrollbar-thumb) var(--color-scrollbar-track);
+}
+
+*::-webkit-scrollbar {
+    width: 10px;
+    height: 10px;
+}
+
+*::-webkit-scrollbar-track {
+    background: var(--color-scrollbar-track);
+}
+
+*::-webkit-scrollbar-thumb {
+    background: var(--color-scrollbar-thumb);
+    border-radius: 999px;
+    border: 2px solid var(--color-scrollbar-track);
+}
+
+*::-webkit-scrollbar-thumb:hover {
+    background: var(--color-scrollbar-thumb-hover);
+}
+
+*::-webkit-scrollbar-corner {
+    background: var(--color-scrollbar-track);
 }

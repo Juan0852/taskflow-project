@@ -2,6 +2,9 @@
  * BiTask - Task Service [Oso de Anteojos]
  * Gestión de datos con IDs secuenciales (1, 2, 3...).
  */
+import { STORAGE_KEYS } from '../../shared/storage-keys.js';
+import { StorageService } from '../../shared/storage-service.js';
+
 export const TaskService = {
     DEFAULT_TYPE: 'general',
     DEFAULT_STATUS: 'pendiente',
@@ -38,12 +41,14 @@ export const TaskService = {
     },
 
     createTaskData(text, priority, type, status) {
+        const now = new Date();
         return {
             text: text.trim(),
             priority,
             type: this._normalizeType(type),
             status: this._normalizeStatus(status),
-            createdAt: new Date().toLocaleString()
+            createdAt: now.toLocaleString(),
+            createdDate: this._toISODate(now)
         };
     },
 
@@ -90,6 +95,38 @@ export const TaskService = {
         return task;
     },
 
+    markAllAsCompleted() {
+        if (!this._tasks.length) return 0;
+
+        let updatedCount = 0;
+        this._tasks.forEach(task => {
+            if (task.status !== 'completado') {
+                task.status = 'completado';
+                updatedCount++;
+            }
+        });
+
+        if (updatedCount > 0) {
+            this._save();
+        }
+
+        return updatedCount;
+    },
+
+    clearCompleted() {
+        if (!this._tasks.length) return 0;
+
+        const initialLength = this._tasks.length;
+        this._tasks = this._tasks.filter(task => task.status !== 'completado');
+        const removedCount = initialLength - this._tasks.length;
+
+        if (removedCount > 0) {
+            this._save();
+        }
+
+        return removedCount;
+    },
+
     /**
      * Reset total (Opcional, limpia también el contador)
      */
@@ -105,12 +142,8 @@ export const TaskService = {
      * Persiste los datos y el estado del contador de IDs
      */
     _save() {
-        try {
-            localStorage.setItem('bitask_db', JSON.stringify(this._tasks));
-            localStorage.setItem('bitask_last_id', this._lastId.toString());
-        } catch (error) {
-            // Ignorado: storage no disponible o bloqueado
-        }
+        StorageService.setJSON(STORAGE_KEYS.TASKS_DB, this._tasks);
+        StorageService.setString(STORAGE_KEYS.TASKS_LAST_ID, this._lastId);
     },
 
     clearAll() {
@@ -119,23 +152,14 @@ export const TaskService = {
     },
 
     init() {
-        try {
-            const rawTasks = localStorage.getItem('bitask_db');
-            const parsedTasks = rawTasks ? JSON.parse(rawTasks) : [];
-            this._tasks = Array.isArray(parsedTasks)
-                ? parsedTasks.map(task => this._normalizeTask(task))
-                : [];
-        } catch (error) {
-            this._tasks = [];
-        }
+        const parsedTasks = StorageService.getJSON(STORAGE_KEYS.TASKS_DB, []);
+        this._tasks = Array.isArray(parsedTasks)
+            ? parsedTasks.map(task => this._normalizeTask(task))
+            : [];
 
-        try {
-            const rawLastId = localStorage.getItem('bitask_last_id');
-            const parsedLastId = rawLastId ? parseInt(rawLastId, 10) : 0;
-            this._lastId = Number.isFinite(parsedLastId) ? parsedLastId : 0;
-        } catch (error) {
-            this._lastId = 0;
-        }
+        const rawLastId = StorageService.getString(STORAGE_KEYS.TASKS_LAST_ID, '0');
+        const parsedLastId = parseInt(rawLastId, 10);
+        this._lastId = Number.isFinite(parsedLastId) ? parsedLastId : 0;
     },
 
     _normalizeType(type = '') {
@@ -149,14 +173,36 @@ export const TaskService = {
     },
 
     _normalizeTask(task = {}) {
+        const fallbackDate = this._extractDateFromTask(task);
         return {
             id: task.id,
             text: typeof task.text === 'string' ? task.text : '',
             priority: task.priority || 'media',
             type: this._normalizeType(task.type),
             status: this._normalizeStatus(task.status),
-            createdAt: task.createdAt || new Date().toLocaleString()
+            createdAt: task.createdAt || new Date().toLocaleString(),
+            createdDate: fallbackDate
         };
+    },
+
+    _extractDateFromTask(task = {}) {
+        if (typeof task.createdDate === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(task.createdDate)) {
+            return task.createdDate;
+        }
+
+        const parsedFromCreatedAt = task.createdAt ? new Date(task.createdAt) : null;
+        if (parsedFromCreatedAt instanceof Date && !Number.isNaN(parsedFromCreatedAt.getTime())) {
+            return this._toISODate(parsedFromCreatedAt);
+        }
+
+        return this._toISODate(new Date());
+    },
+
+    _toISODate(date) {
+        const year = date.getFullYear();
+        const month = String(date.getMonth() + 1).padStart(2, '0');
+        const day = String(date.getDate()).padStart(2, '0');
+        return `${year}-${month}-${day}`;
     }
 };
 

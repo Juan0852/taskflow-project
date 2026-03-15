@@ -17,8 +17,8 @@
 
     <header class="main-window-header flex items-center gap-5 border-b border-[var(--color-border)] bg-[var(--color-bg-surface)] px-[15px] py-2">
         <div class="window-controls flex gap-2">
-            <span class="dot red h-3 w-3 cursor-pointer rounded-full bg-[var(--mac-red)]" onclick="alert('¿Qué haces? Ponte a trabajar...')"></span>
-            <span class="dot yellow h-3 w-3 cursor-pointer rounded-full bg-[var(--mac-yellow)]" onclick="alert('¿De nuevo tú?')"></span>
+            <span id="window-dot-red" class="dot red h-3 w-3 cursor-pointer rounded-full bg-[var(--mac-red)]"></span>
+            <span id="window-dot-yellow" class="dot yellow h-3 w-3 cursor-pointer rounded-full bg-[var(--mac-yellow)]"></span>
             <span class="dot green h-3 w-3 cursor-pointer rounded-full bg-[var(--mac-green)]"></span>
         </div>
         <div class="projectAndGit flex flex-1 items-center gap-5">
@@ -31,7 +31,20 @@
                 <span>feature/develop</span>
             </div>
         </div>
-        <div class="ide-title">BiTask IDE v1.0 [Oso de Anteojos]</div>
+        <div class="flex items-center gap-3">
+            <div class="ide-title">BiTask IDE v1.0 [Oso de Anteojos]</div>
+            <button
+                id="toolbar-settings-trigger"
+                type="button"
+                aria-label="Configurar botones disponibles"
+                title="Configurar botones disponibles"
+                class="inline-flex h-9 w-9 items-center justify-center rounded-md border border-transparent bg-transparent text-[var(--color-settings-icon)] transition-[background-color,border-color,color,transform] duration-200 hover:border-[var(--color-border)] hover:bg-[var(--color-bg-base)] hover:text-[var(--color-text-strong)]">
+                <svg viewBox="0 0 24 24" aria-hidden="true" class="h-5 w-5" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M12 3.75a2.25 2.25 0 0 1 2.2 1.79l.14.67a1.5 1.5 0 0 0 1.84 1.15l.67-.17a2.25 2.25 0 0 1 2.63 1.2 2.25 2.25 0 0 1-.4 2.86l-.5.48a1.5 1.5 0 0 0 0 2.16l.5.48a2.25 2.25 0 0 1 .4 2.86 2.25 2.25 0 0 1-2.63 1.2l-.67-.17a1.5 1.5 0 0 0-1.84 1.15l-.14.67a2.25 2.25 0 0 1-4.4 0l-.14-.67a1.5 1.5 0 0 0-1.84-1.15l-.67.17a2.25 2.25 0 0 1-2.63-1.2 2.25 2.25 0 0 1 .4-2.86l.5-.48a1.5 1.5 0 0 0 0-2.16l-.5-.48a2.25 2.25 0 0 1-.4-2.86 2.25 2.25 0 0 1 2.63-1.2l.67.17a1.5 1.5 0 0 0 1.84-1.15l.14-.67A2.25 2.25 0 0 1 12 3.75Z" />
+                    <circle cx="12" cy="12" r="2.75" />
+                </svg>
+            </button>
+        </div>
     </header>
 
     <div class="main-layout flex flex-1 overflow-hidden">
@@ -45,8 +58,8 @@
         </aside>
 
         <aside class="project-view flex w-[300px] flex-col border-r border-[var(--color-border)] bg-[var(--color-bg-surface)]">
-            <div class="closer-project-view">
-                <ul class="file-tree">
+            <div class="mx-3 mt-3 rounded-[12px] border border-[var(--color-border)] bg-[var(--color-bg-base)] p-3">
+                <ul class="file-tree py-2">
                     <li class="tree-item flex cursor-pointer items-center gap-2 px-[15px] py-[6px] text-[0.85rem] hover:bg-[var(--color-bg-hover)]">
                         <img src="/assets/Package.png" class="icon tree-icon icon-tint icon-fixed-color h-6 w-6 text-[var(--color-text)] [filter:var(--tree-package-filter)]" alt="Package">
                         <span>src/main/java/com/bitask</span>
@@ -71,25 +84,54 @@
                     </li>
                 </ul>
             </div>
+            <div id="calendar-filter-zone" class="mx-3 mt-6 rounded-[12px] border border-[var(--color-border)] bg-[var(--color-bg-base)] p-4">
+                <div class="mb-3">
+                    <p class="text-[12px] uppercase tracking-[0.16em] text-[var(--color-text-muted)]">Zona de calendario</p>
+                    <p class="mt-2 text-[12px] leading-6 text-[var(--color-text-soft)]">Haz click para filtrar un solo día, o usa <span class="font-semibold text-[var(--color-text-strong)]">Ctrl</span>/<span class="font-semibold text-[var(--color-text-strong)]">Cmd</span> + click para filtrar un rango continuo de fechas.</p>
+                </div>
+                <div class="flex flex-col gap-3">
+                    <div class="rounded-[10px] border border-[var(--color-border)] bg-[var(--color-bg-surface)] p-3">
+                        <div id="calendar-filter-month-label" class="mb-3 text-[13px] font-semibold text-[var(--color-text-strong)]"></div>
+                        <div id="calendar-filter-grid" class="grid grid-cols-7 gap-2"></div>
+                    </div>
+                    <button id="calendar-filter-clear" type="button" class="inline-flex h-9 items-center justify-center rounded border border-[var(--color-border-soft)] bg-transparent px-3 text-[12px] text-[var(--color-text-soft)] transition-colors duration-200 hover:bg-[var(--color-bg-hover)] hover:text-[var(--color-text-strong)]">
+                        Mostrar todos los días
+                    </button>
+                </div>
+            </div>
         </aside>
 
         <main class="code-editor flex flex-1 flex-col overflow-hidden bg-[var(--color-bg-editor)]">
-            <div class="editor-canvas flex-1 overflow-y-auto" id="editor-display">
-                <section id="controller-file" class="code-page hidden w-full flex-col">
-                    <div class="tabs w-fit border-r border-[var(--color-border)] bg-[var(--color-bg-surface)] px-[15px] py-2 text-[0.8rem]">TaskController.java ✕</div>
-                    <div class="controller-toolbar flex items-center gap-[15px] border-b border-[var(--color-border)] bg-[var(--color-bg-base)] px-[15px] py-[10px]">
-                        <button id="btn-add-gui" class="gui-btn add flex h-10 cursor-pointer items-center justify-center gap-2 rounded-[3px] border border-[var(--color-control-border)] bg-[var(--color-control-bg)] px-[15px] text-[var(--color-text-soft)] transition-[background-color,border-color,color] duration-200 hover:border-[var(--color-accent-border)] hover:bg-[var(--color-control-hover)] hover:text-[var(--color-text-strong)]">
-                            <img src="/assets/Add.png" alt="" class="btn-icon h-[18px] w-[18px] text-[var(--color-text)]">
+            <div class="editor-canvas flex-1 overflow-x-hidden overflow-y-auto" id="editor-display">
+                <div id="shared-workspace-controls" class="hidden flex-col">
+                    <div class="controller-toolbar flex flex-wrap items-center gap-3 border-b border-[var(--color-border)] bg-[var(--color-bg-base)] px-[15px] py-[10px]">
+                        <button id="btn-add-gui" data-configurable-control="add-task" data-configurable-label="Nueva Tarea" class="gui-btn add flex h-10 cursor-pointer items-center justify-center gap-2 rounded-[3px] border border-[var(--color-control-border)] bg-[var(--color-control-bg)] px-[15px] text-[var(--color-text-soft)] transition-[background-color,border-color,color] duration-200 hover:border-[var(--color-accent-border)] hover:bg-[var(--color-control-hover)] hover:text-[var(--color-text-strong)]">
+                            <img src="/assets/Add.png" alt="" class="btn-icon h-[18px] w-[18px] [filter:var(--action-icon-filter)]">
                             <span class="font-inherit text-[13px] leading-none">Nueva Tarea</span>
                         </button>
 
-                        <button id="btn-clear-gui" class="gui-btn delete flex h-10 cursor-pointer items-center justify-center gap-2 rounded-[3px] border border-[var(--color-control-border)] bg-[var(--color-control-bg)] px-[15px] text-[var(--color-text-soft)] transition-[background-color,border-color,color] duration-200 hover:border-[var(--color-accent-border)] hover:bg-[var(--color-control-hover)] hover:text-[var(--color-text-strong)]">
-                            <img src="/assets/Trash.png" alt="" class="btn-icon h-[18px] w-[18px] text-[var(--color-text)]">
+                        <button id="btn-edit-selected-gui" data-configurable-control="edit-selected-task" data-configurable-label="Editar Tarea Seleccionada" class="gui-btn edit-selected flex h-10 cursor-pointer items-center justify-center gap-2 rounded-[3px] border border-[var(--color-control-border)] bg-[var(--color-control-bg)] px-[15px] text-[var(--color-text-soft)] transition-[background-color,border-color,color,opacity] duration-200 hover:border-[var(--color-accent-border)] hover:bg-[var(--color-control-hover)] hover:text-[var(--color-text-strong)]">
+                            <span class="inline-flex h-[18px] w-[18px] items-center justify-center rounded-[4px] border border-[var(--color-accent-border)] text-[11px] font-semibold text-[var(--color-accent-info)]">✎</span>
+                            <span class="font-inherit text-[13px] leading-none">Editar Seleccionada</span>
+                        </button>
+
+                        <button id="btn-clear-gui" data-configurable-control="clear-tasks" data-configurable-label="Borrar Todas" class="gui-btn delete flex h-10 cursor-pointer items-center justify-center gap-2 rounded-[3px] border border-[var(--color-control-border)] bg-[var(--color-control-bg)] px-[15px] text-[var(--color-text-soft)] transition-[background-color,border-color,color] duration-200 hover:border-[var(--color-accent-border)] hover:bg-[var(--color-control-hover)] hover:text-[var(--color-text-strong)]">
+                            <img src="/assets/Trash.png" alt="" class="btn-icon h-[18px] w-[18px] [filter:var(--action-icon-filter)]">
                             <span class="font-inherit text-[13px] leading-none">Borrar Todas</span>
                         </button>
 
+                        <button id="btn-complete-all-gui" data-configurable-control="complete-all-tasks" data-configurable-label="Completar Todas" class="gui-btn complete-all flex h-10 cursor-pointer items-center justify-center gap-2 rounded-[3px] border border-[var(--color-control-border)] bg-[var(--color-control-bg)] px-[15px] text-[var(--color-text-soft)] transition-[background-color,border-color,color] duration-200 hover:border-[var(--color-accent-border)] hover:bg-[var(--color-control-hover)] hover:text-[var(--color-text-strong)]">
+                            <span class="inline-flex h-[18px] w-[18px] items-center justify-center rounded-full border border-[var(--color-accent-border)] text-[11px] font-semibold text-[var(--color-accent-info)]">✓</span>
+                            <span class="font-inherit text-[13px] leading-none">Completar Todas</span>
+                        </button>
+
+                        <button id="btn-clear-completed-gui" data-configurable-control="clear-completed-tasks" data-configurable-label="Borrar Completadas" class="gui-btn clear-completed flex h-10 cursor-pointer items-center justify-center gap-2 rounded-[3px] border border-[var(--color-control-border)] bg-[var(--color-control-bg)] px-[15px] text-[var(--color-text-soft)] transition-[background-color,border-color,color] duration-200 hover:border-[var(--color-accent-border)] hover:bg-[var(--color-control-hover)] hover:text-[var(--color-text-strong)]">
+                            <span class="inline-flex h-[18px] w-[18px] items-center justify-center rounded-full border border-[var(--color-danger-border)] text-[11px] font-semibold text-[var(--color-danger-text)]">×</span>
+                            <span class="font-inherit text-[13px] leading-none">Borrar Completadas</span>
+                        </button>
+
                         <input type="text" id="gui-search-task" placeholder="Buscar tareas..."
-                            class="toolbar-search-input ml-auto h-10 w-[1500px] rounded border border-solid border-[var(--color-border)] bg-[var(--color-bg-base)] px-3 py-[6px] font-inherit text-[13px] text-[var(--color-text)] outline-none transition-[border-color,box-shadow] duration-200 placeholder:italic placeholder:text-[var(--color-text-muted)] focus:border-[var(--color-accent-border)] focus:shadow-[0_0_0_2px_rgba(75,110,175,0.3)]">
+                            class="toolbar-search-input h-10 min-w-[240px] flex-1 rounded border border-solid border-[var(--color-border)] bg-[var(--color-bg-base)] px-3 py-[6px] font-inherit text-[13px] text-[var(--color-text)] outline-none transition-[border-color,box-shadow] duration-200 placeholder:italic placeholder:text-[var(--color-text-muted)] focus:border-[var(--color-accent-border)] focus:shadow-[0_0_0_2px_rgba(75,110,175,0.3)]">
                     </div>
                     <div id="gui-add-panel" class="form-add-panel hidden flex-col gap-[10px] border-b-2 border-[var(--color-bg-base)] bg-[var(--color-bg-surface)] px-[15px] py-3 animate-slide-down">
                         <div class="add-panel-body flex items-center gap-[10px]">
@@ -117,8 +159,19 @@
                         </div>
                     </div>
 
-                    <div id="task-type-filters" class="flex gap-2 overflow-x-auto border-b border-[var(--color-border)] bg-[var(--color-bg-base)] px-[15px] py-[8px]"></div>
+                    <div class="flex flex-wrap items-center gap-4 border-b border-[var(--color-border)] bg-[var(--color-bg-base)] px-[15px] py-[8px]">
+                        <div id="task-type-filters" class="flex min-w-0 flex-1 flex-wrap gap-2"></div>
+                        <div class="flex flex-wrap items-center gap-2 text-[12px] text-[var(--color-text-muted)]">
+                            <span>Ordenar por</span>
+                            <div id="task-sort-controls" class="flex items-center gap-2"></div>
+                            <button id="task-sort-add" type="button" title="Añadir criterio de orden" aria-label="Añadir criterio de orden" class="inline-flex h-8 w-8 items-center justify-center rounded border border-[var(--color-border-soft)] bg-[var(--color-bg-surface)] text-[16px] text-[var(--color-text)] transition-[border-color,background-color,color] duration-200 hover:border-[var(--color-accent-border)] hover:bg-[var(--color-bg-hover)] hover:text-[var(--color-text-strong)]">+</button>
+                        </div>
+                    </div>
+                </div>
 
+                <section id="controller-file" class="code-page hidden w-full flex-col">
+                    <div class="tabs w-fit border-r border-[var(--color-border)] bg-[var(--color-bg-surface)] px-[15px] py-2 text-[0.8rem]">TaskController.java ✕</div>
+                    <div id="controller-workspace-controls-slot"></div>
                     <div class="code-content">
                         <div id="task-list-container" class="task-list flex flex-col"></div>
                     </div>
@@ -126,7 +179,8 @@
 
                 <section id="kanban-file" class="code-page hidden w-full flex-col">
                     <div class="tabs w-fit border-r border-[var(--color-border)] bg-[var(--color-bg-surface)] px-[15px] py-2 text-[0.8rem]">KanbanBoard.java ✕</div>
-                    <div class="kanban-board" id="kanban-display"></div>
+                    <div id="kanban-workspace-controls-slot"></div>
+                    <div id="kanban-display" class="kanban-board flex-1 overflow-y-auto overflow-x-hidden p-4"></div>
                 </section>
                 <section id="readme-file" class="code-page flex w-full flex-col">
                     <div class="tabs w-fit border-r border-[var(--color-border)] bg-[var(--color-bg-surface)] px-[15px] py-2 text-[0.8rem]">Readme.md</div>
@@ -148,6 +202,70 @@
             </section>
         </main>
     </div>
+
+    <div id="toolbar-settings-modal" class="fixed inset-0 z-[1200] hidden items-center justify-center p-4">
+        <div id="toolbar-settings-backdrop" class="absolute inset-0 bg-[rgba(11,16,24,0.58)] backdrop-blur-[2px]"></div>
+        <div class="relative z-[1] flex w-full max-w-[860px] flex-col overflow-hidden rounded-[14px] border border-[var(--color-border)] bg-[var(--color-bg-surface)] shadow-[0_24px_80px_rgba(0,0,0,0.45)]">
+            <div class="flex items-start justify-between gap-4 border-b border-[var(--color-border)] px-6 py-5">
+                <div>
+                    <h2 class="text-[18px] font-semibold text-[var(--color-text-strong)]">Personalizar barra de acciones</h2>
+                    <p class="mt-2 text-[13px] leading-6 text-[var(--color-text-soft)]">
+                        Arrastra botones entre columnas para decidir qué aparece en el IDE y ajusta cómo quieres que se comporte la zona de filtros.
+                    </p>
+                </div>
+                <button
+                    id="toolbar-settings-close"
+                    type="button"
+                    aria-label="Cerrar personalización"
+                    class="inline-flex h-9 w-9 items-center justify-center rounded-md border border-[var(--color-border)] bg-[var(--color-bg-base)] text-[var(--color-text-soft)] transition-colors duration-200 hover:bg-[var(--color-bg-hover)] hover:text-[var(--color-text-strong)]">
+                    <span class="text-[18px] leading-none">×</span>
+                </button>
+            </div>
+            <div class="grid gap-6 px-6 py-5 lg:grid-cols-[minmax(0,1fr)_320px]">
+                <div class="space-y-6">
+                    <div>
+                        <p class="mb-4 text-[12px] uppercase tracking-[0.16em] text-[var(--color-text-muted)]">Botones del IDE</p>
+                        <p class="mb-4 text-[13px] leading-6 text-[var(--color-text-soft)]">
+                            Arrastra de un lado a otro cuáles quieres que sean visibles y cuáles no.
+                        </p>
+                        <div class="grid gap-4 md:grid-cols-2">
+                            <div>
+                                <p class="mb-2 text-[12px] text-[var(--color-text-muted)]">Visibles en el IDE</p>
+                                <div id="toolbar-settings-visible" class="min-h-[240px] rounded-[12px] border border-dashed border-[var(--color-accent-border)] bg-[var(--color-bg-base)] p-3"></div>
+                            </div>
+                            <div>
+                                <p class="mb-2 text-[12px] text-[var(--color-text-muted)]">Ocultos</p>
+                                <div id="toolbar-settings-hidden" class="min-h-[240px] rounded-[12px] border border-dashed border-[var(--color-border)] bg-[var(--color-bg-base)] p-3"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div>
+                    <p class="mb-4 text-[12px] uppercase tracking-[0.16em] text-[var(--color-text-muted)]">Zona de filtros</p>
+                    <div id="toolbar-filter-settings" class="space-y-3"></div>
+                </div>
+                <div>
+                    <p class="mb-4 text-[12px] uppercase tracking-[0.16em] text-[var(--color-text-muted)]">Zona de calendario</p>
+                    <div id="toolbar-calendar-settings" class="space-y-3"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="app-dialog-modal" class="fixed inset-0 z-[1300] hidden items-center justify-center p-4">
+        <div id="app-dialog-backdrop" class="absolute inset-0 bg-[rgba(11,16,24,0.64)] backdrop-blur-[3px]"></div>
+        <div id="app-dialog-card" class="relative z-[1] flex w-full max-w-[460px] flex-col overflow-hidden rounded-[16px] border border-[var(--color-border)] bg-[var(--color-bg-surface)] shadow-[0_28px_90px_rgba(0,0,0,0.5)]">
+            <div class="border-b border-[var(--color-border)] px-6 py-5">
+                <p id="app-dialog-eyebrow" class="text-[11px] uppercase tracking-[0.18em] text-[var(--color-text-muted)]">BiTask</p>
+                <h2 id="app-dialog-title" class="mt-2 text-[18px] font-semibold text-[var(--color-text-strong)]">Mensaje</h2>
+            </div>
+            <div class="px-6 py-5">
+                <div id="app-dialog-message" class="max-h-[60vh] overflow-y-auto whitespace-pre-wrap text-[14px] leading-7 text-[var(--color-text-soft)]"></div>
+            </div>
+            <div id="app-dialog-actions" class="flex justify-end gap-3 border-t border-[var(--color-border)] bg-[var(--color-bg-base)] px-6 py-4"></div>
+        </div>
+    </div>
+
     <script type="module" src="/src/main.js"></script>
 
 </html>
