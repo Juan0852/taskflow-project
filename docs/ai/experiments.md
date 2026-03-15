@@ -168,11 +168,11 @@ Tambien conviene dejar una idea clara al cerrar este documento: la productividad
 
 En este trabajo se vio varias veces que, con apoyo de IA, algunos cambios que habrian tomado muchisimo mas tiempo pudieron salir muy rapido. Eso incluyo:
 
-- refactors grandes de arquitectura,
-- hotfixes sobre UI y tema,
-- nuevas vistas,
-- reorganizacion de storage,
-- y anadido de botones, handlers y features completas.
+- Refactors grandes de arquitectura,
+- Hotfixes sobre UI y tema,
+- Nuevas vistas,
+- Reorganizacion de storage,
+- Añadido de botones, handlers y features completas.
 
 Es verdad que no siempre se uso un enfoque academico puro. A veces la arquitectura fue una mezcla rara entre `MVC` y `MVVM`, y a veces lo importante no era perseguir la perfeccion teorica sino llegar a una solucion que funcionara, que se pudiera mantener y que permitiera seguir avanzando.
 
@@ -180,4 +180,4 @@ En ese sentido, importa recordar algo muy simple: el codigo bonito y perfectamen
 
 Este tipo de idea no es exclusiva de este repositorio. Un caso muy citado es el de Pieter Levels con productos como `InteriorAI` y `PhotoAI`, donde el discurso publico ha sido precisamente priorizar velocidad de construccion, iteracion y lanzamiento sobre una obsesion temprana con la arquitectura perfecta. En una publicacion sobre `InteriorAI`, Levels explico que lo construyo en cinco dias con HTML, CSS y JavaScript vanilla en una sola pagina, mas PHP en servidor, y aun asi el producto logro traccion real. La leccion no es "da igual la calidad", sino que la productividad y la capacidad de iterar tambien forman parte de la calidad cuando se construye un producto.
 
-Por eso, una de las conclusiones mas honestas de este experimento es esta: la IA no solo sirvio para resolver ejercicios pequenos, sino para acelerar de forma brutal cambios grandes dentro del proyecto. Y si el resultado fue un commit enorme, extraño y probablemente un poco sospechoso, tambien fue porque permitio empujar mucho trabajo real en muy poco tiempo. Y, honestamente, estuvo de puta madre.
+Por eso, una de las conclusiones mas honestas de este experimento es esta: la IA no solo sirvio para resolver ejercicios pequeños, sino para acelerar de forma brutal cambios grandes dentro del proyecto. Y si el resultado fue un commit enorme, extraño y probablemente un poco sospechoso, tambien fue porque permitio empujar mucho trabajo real en muy poco tiempo. Y, honestamente, estuvo de puta madre.
