@@ -124,7 +124,7 @@ Esto encaja mejor con el objetivo del proyecto que un modelo improvisado con JWT
 
 ### Zod
 
-`zod` se utilizara para validar DTOs de entrada.
+`zod` se utiliza para validar DTOs de entrada.
 
 Servira para:
 
@@ -132,6 +132,29 @@ Servira para:
 - controlar que campos entran realmente a la API,
 - evitar payloads sucios o inconsistentes,
 - modelar request DTOs de forma clara.
+
+Es importante distinguir dos capas de validacion:
+
+- **validacion estructural**: vive principalmente en los request DTOs con `zod`
+- **validacion de negocio**: vive en `services`
+
+La validacion estructural responde preguntas como:
+
+- si el campo existe,
+- si tiene el tipo correcto,
+- si el email tiene formato valido,
+- si falta un dato obligatorio,
+- o si el payload ya viene roto desde el cliente.
+
+La validacion de negocio responde preguntas como:
+
+- si el email ya esta en uso,
+- si el username ya esta ocupado,
+- si un username esta reservado,
+- si la password no cumple una politica real del sistema,
+- o si una accion concreta esta permitida segun el estado actual de la base de datos.
+
+En este proyecto se entiende que habra validaciones en frontend y backend, pero el backend sigue siendo la capa definitiva de confianza.
 
 ## Tecnologias previstas para fases posteriores
 
@@ -174,7 +197,7 @@ Esto no se implementara en la primera fase porque no es prioritario para levanta
 
 ## Modelo de datos actual pensado
 
-Las entidades base contempladas en esta primera fase son:
+Las entidades base de esta primera fase son:
 
 - `User`
 - `Task`
@@ -217,9 +240,9 @@ Parte de esta informacion se guardara en `Json` para evitar sobredisenar demasia
 
 ## Arquitectura prevista
 
-Aunque todavia no esta montada completa, la idea es organizar el backend por modulos, siguiendo una estructura clara y mantenible.
+La arquitectura del backend se esta organizando por modulos, siguiendo una estructura clara y mantenible.
 
-La direccion prevista es algo parecido a:
+La direccion actual es esta:
 
 ```text
 backend/
@@ -240,7 +263,7 @@ backend/
         └── preferences/
 ```
 
-Dentro de cada modulo se pretende mantener una separacion clara entre:
+Dentro de cada modulo se mantiene o se seguira manteniendo una separacion clara entre:
 
 - routes
 - controllers
@@ -258,15 +281,108 @@ En este punto ya existe:
 - el stack base decidido,
 - el `schema.prisma` inicial,
 - la rama dedicada de backend,
+- el bootstrap funcional del servidor con `app.js` y `server.js`,
+- validacion de entorno centralizada en `src/config/env.js`,
+- el `PrismaClient` preparado en `src/lib/prisma.js`,
+- la estructura modular inicial de `auth`, `tasks`, `users` y `preferences`,
+- rutas placeholder montadas para todos esos modulos,
+- un endpoint base de salud para comprobar que el backend arranca correctamente,
+- la base de datos local `taskflow_db` ya inicializada,
+- la migracion inicial de Prisma ya generada y aplicada,
+- y las tablas base ya creadas en PostgreSQL (`User`, `Task`, `UserPreference`, `_prisma_migrations`).
+
+## Estado tecnico del bootstrap
+
+Actualmente el backend ya puede arrancar con:
+
+- `express`
+- `cors`
+- `dotenv`
+- `express-session`
+- `zod`
+
+Tambien quedan configurados desde el arranque:
+
+- `CORS` con `credentials: true`,
+- cookie de sesion `HttpOnly`,
+- parseo de JSON,
+- rutas base para cada modulo,
+- middleware de `404`,
+- y middleware central de manejo de errores.
+
+Tambien queda ya comprobado en runtime real que:
+
+- `Prisma 6` conecta correctamente con PostgreSQL,
+- el backend puede arrancar con conexion viva a base de datos,
+- y la base del servidor ya no es solo teorica, sino funcional.
+
+## Estado actual del modulo auth
+
+En este punto el modulo `auth` ya cuenta con una primera version funcional de:
+
+- `register`
+- `login`
+- `me`
+- `logout`
+
+Ademas, la implementacion ya sigue una separacion real entre:
+
+- request DTOs,
+- response DTOs,
+- `service`,
+- `repository`,
+- `mapper`,
+- errores especificos del modulo,
+- y servicio de hashing de password.
+
+Tambien queda establecida la distincion entre:
+
+- validacion estructural (DTOs / `zod`)
+- validacion de negocio (`service`)
+
+En `auth` ya estan implementadas y probadas las siguientes piezas:
+
+- registro de usuario con hash de contrasena mediante `argon2`,
+- login con verificacion de credenciales,
+- recuperacion del usuario actual mediante sesion (`me`),
+- cierre de sesion (`logout`),
+- sesiones basadas en cookie con `express-session`,
+- errores de negocio propios del modulo (`EMAIL_ALREADY_IN_USE`, `USERNAME_ALREADY_IN_USE`, `USERNAME_RESERVED`, `PASSWORD_TOO_WEAK`, `INVALID_CREDENTIALS`, `INACTIVE_ACCOUNT`),
+- mensajes y respuestas preparados en espanol,
+- y validaciones estructurales separadas de las validaciones de negocio.
+
+El flujo completo de `auth` ya fue probado manualmente en desarrollo con respuestas correctas para:
+
+- `status`
+- `register`
+- `login`
+- `me`
+- `logout`
+- `me` sin sesion activa
+
+Con esto, el modulo `auth` puede considerarse cerrado como primera version funcional y el siguiente paso natural del backend pasa a ser el modulo `tasks`.
+
+## Decision tecnica resuelta sobre Prisma
+
+La decision `Prisma 6` vs `Prisma 7` ya quedo cerrada:
+
+- el proyecto usara `Prisma 6`
+
+La razon principal es practica: el `schema.prisma` actual ya esta escrito con el flujo clasico que encaja de forma natural con Prisma 6, mientras que Prisma 7 introduce cambios de configuracion que no aportan valor inmediato para esta fase del proyecto.
+
+Con esta decision ya queda validado que:
+
+- el esquema actual es compatible con la version elegida,
+- `prisma generate` funciona correctamente,
+- y el backend puede seguir avanzando sobre una base mas estable y predecible.
 - y el archivo `.env` local ignorado por Git.
 
 Todavia faltan:
 
-- crear `.env.example`,
-- inicializar Prisma formalmente con migraciones,
-- conectar PostgreSQL local,
-- crear el cliente Prisma,
-- y empezar a construir auth, tareas y preferencias.
+- revisar si conviene añadir `.env.example` mas adelante,
+- continuar con el modulo `tasks`,
+- construir el modulo `preferences`,
+- y seguir integrando el frontend actual con la API del backend.
 
 ## Nota de alcance
 
