@@ -8,6 +8,29 @@ import { UIManager } from '../../ui-manager.js';
 export const TerminalShortcuts = {
     initialized: false,
 
+    isTypingContext() {
+        const activeElement = document.activeElement;
+        const blockingModalIds = ['auth-modal', 'trash-bin-modal'];
+        const isBlockingModalOpen = blockingModalIds.some((modalId) => {
+            const modal = document.getElementById(modalId);
+            return modal && !modal.classList.contains('hidden');
+        });
+
+        if (isBlockingModalOpen) {
+            return true;
+        }
+
+        if (!activeElement) {
+            return false;
+        }
+
+        const tagName = activeElement.tagName?.toLowerCase() || '';
+        const isEditableField = ['input', 'textarea', 'select'].includes(tagName);
+        const isContentEditable = activeElement.isContentEditable;
+
+        return isEditableField || isContentEditable;
+    },
+
     init() {
         if (this.initialized) return;
         this.initialized = true;
@@ -20,6 +43,7 @@ export const TerminalShortcuts = {
 
             // Alt en Windows/Linux o Option (⌥) en Mac
             const isAlt = e.altKey;
+            const isTyping = this.isTypingContext();
 
             // --- LISTA DE ATAJOS ---
 
@@ -29,6 +53,10 @@ export const TerminalShortcuts = {
                 e.preventDefault();
                 UIManager.clearTerminal();
                 console.log("Shortcut: Terminal Cleared");
+            }
+
+            if (isTyping) {
+                return;
             }
 
             // Alt + Tecla al lado del 1 (Backquote / º / `)

@@ -15,6 +15,8 @@ export const KanbanBoardView = {
     renderBoard(uiManager, columns, groupedTasks, handlers) {
         const container = uiManager.elements.kanbanContainer;
         if (!container) return;
+        const allTasks = columns.flatMap(column => groupedTasks[column.status] || []);
+        const displayIdMap = TaskListViewModel.buildDisplayIdMap(allTasks);
 
         container.innerHTML = '';
         container.className = 'kanban-board grid min-h-[calc(100vh-280px)] grid-cols-1 gap-4 overflow-x-hidden p-4 lg:grid-cols-3';
@@ -46,7 +48,7 @@ export const KanbanBoardView = {
                 dropZone.appendChild(empty);
             } else {
                 groupedTasks[column.status].forEach(task => {
-                    dropZone.appendChild(this.createCard(task, handlers));
+                    dropZone.appendChild(this.createCard(task, handlers, displayIdMap));
                 });
             }
 
@@ -56,7 +58,7 @@ export const KanbanBoardView = {
         });
     },
 
-    createCard(task, handlers) {
+    createCard(task, handlers, displayIdMap) {
         const card = document.createElement('article');
         card.className = 'flex min-h-[170px] cursor-grab flex-col justify-between rounded-[14px] border border-[var(--color-border-soft)] bg-[var(--color-bg-base)] p-4 shadow-[0_10px_24px_rgba(0,0,0,0.12)] transition-[border-color,transform,box-shadow] duration-150 hover:-translate-y-[1px] hover:border-[var(--color-accent-border)] hover:shadow-[0_14px_30px_rgba(0,0,0,0.18)]';
         card.draggable = true;
@@ -72,12 +74,13 @@ export const KanbanBoardView = {
         const safeType = this.escapeHTML(task.type || defaults.type);
         const safeStatus = this.escapeHTML((task.status || defaults.status).toUpperCase());
         const safeText = this.escapeHTML(TaskListViewModel.getTaskPreviewText(task));
-        const safeDate = this.escapeHTML(task.createdAt || '');
+        const safeDate = this.escapeHTML(TaskListViewModel.formatDisplayDateTime(task.createdAt));
+        const displayId = this.escapeHTML(TaskListViewModel.getDisplayId(displayIdMap, task.id));
         const shouldShowExpand = TaskListViewModel.isExpandableTask(task);
         card.innerHTML = `
             <div>
                 <div class="mb-3 flex items-start justify-between gap-3">
-                    <span class="text-[12px] font-semibold text-[var(--color-code-keyword)]">#${task.id}</span>
+                    <span class="text-[12px] font-semibold text-[var(--color-code-keyword)]">#${displayId}</span>
                     <span class="rounded-full border border-[var(--color-accent-border)] px-2 py-1 text-[11px] text-[var(--color-accent-info)]">${safeStatus}</span>
                 </div>
                 <div class="mb-3 text-[12px] text-[var(--color-code-identifier)]">{${safeType}}</div>

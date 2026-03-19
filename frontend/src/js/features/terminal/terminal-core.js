@@ -75,7 +75,9 @@ export const TerminalCore = {
             9: () => this.runConfig(raw)
         };
 
-        if (executionMap[actionId]) executionMap[actionId]();
+        if (executionMap[actionId]) {
+            void executionMap[actionId]();
+        }
     },
 
     // --- MÉTODOS ESPECIALIZADOS ---
@@ -88,7 +90,7 @@ export const TerminalCore = {
         return singleWordMatch ? singleWordMatch[1] : '';
     },
 
-    runAdd(raw) {
+    async runAdd(raw) {
         const parts = raw.match(/["'](.+?)["']\s*(.*)/);
         if (!parts) return this._err(raw, "Error: El formato debe ser: -a \"tarea\" -p [prioridad]");
 
@@ -103,7 +105,7 @@ export const TerminalCore = {
         const priority = prioMatch[1].toLowerCase();
         const type = this._extractQuotedValue(raw, 't|type');
         const status = this._extractQuotedValue(raw, 's|status');
-        TerminalService.addTask(taskText, priority, type, status);
+        await TerminalService.addTask(taskText, priority, type, status);
         this._markSuccess();
         UIManager.printTerminalLine(raw, `<span class="success text-[var(--mac-green)]">OK:</span> Tarea creada con éxito.`);
     },
@@ -152,8 +154,8 @@ export const TerminalCore = {
         }
     },
 
-    runCompleteAll(raw) {
-        const updatedCount = TerminalService.completeAllTasks();
+    async runCompleteAll(raw) {
+        const updatedCount = await TerminalService.completeAllTasks();
         this._markSuccess();
 
         if (updatedCount === 0) {
@@ -164,22 +166,30 @@ export const TerminalCore = {
         UIManager.printTerminalLine(raw, `Se marcaron ${updatedCount} tarea(s) como completadas.`);
     },
 
-    runClearAll(raw) {
-        const totalTasks = TerminalService.clearAllTasks();
-        this._markSuccess();
-        UIManager.printTerminalLine(raw, `Se borraron ${totalTasks} tarea(s).`);
+    async runClearAll(raw) {
+        try {
+            const totalTasks = await TerminalService.clearAllTasks();
+            this._markSuccess();
+            UIManager.printTerminalLine(raw, `Se mandaron ${totalTasks} tarea(s) a la papelera.`);
+        } catch (error) {
+            this._err(raw, error?.message || 'No se pudieron mandar las tareas a la papelera.');
+        }
     },
 
-    runClearCompleted(raw) {
-        const removedCount = TerminalService.clearCompletedTasks();
-        this._markSuccess();
+    async runClearCompleted(raw) {
+        try {
+            const removedCount = await TerminalService.clearCompletedTasks();
+            this._markSuccess();
 
-        if (removedCount === 0) {
-            UIManager.printTerminalLine(raw, 'No había tareas completadas para borrar.');
-            return;
+            if (removedCount === 0) {
+                UIManager.printTerminalLine(raw, 'No había tareas completadas para mandar a la papelera.');
+                return;
+            }
+
+            UIManager.printTerminalLine(raw, `Se mandaron ${removedCount} tarea(s) completada(s) a la papelera.`);
+        } catch (error) {
+            this._err(raw, error?.message || 'No se pudieron mandar las tareas completadas a la papelera.');
         }
-
-        UIManager.printTerminalLine(raw, `Se borraron ${removedCount} tarea(s) completada(s).`);
     },
 
     runConfig(raw) {

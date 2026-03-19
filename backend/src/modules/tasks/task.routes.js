@@ -13,6 +13,7 @@ router.get('/types', TaskController.getTypes);
 router.post('/', TaskController.create);
 router.patch('/bulk/complete-all', TaskController.completeAll);
 router.patch('/bulk/trash-completed', TaskController.trashCompleted);
+router.patch('/bulk/trash-all', TaskController.trashAll);
 router.delete('/bulk/delete-trash', TaskController.emptyTrash);
 router.patch('/:id', TaskController.update);
 router.patch('/:id/trash', TaskController.trash);

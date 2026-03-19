@@ -1,4 +1,25 @@
-const AUTH_BASE_URL = 'http://localhost:3000/api/auth';
+import { LoginRequestDTO } from './dtos/login.request.dto.js';
+import { AuthUserResponseDTO } from './dtos/auth-user.response.dto.js';
+import { RegisterRequestDTO } from './dtos/register.request.dto.js';
+import { RegisterResponseDTO } from './dtos/register.response.dto.js';
+import { AppConfig } from '../../shared/config.js';
+
+const AUTH_BASE_URL = `${AppConfig.apiBaseUrl}/auth`;
+
+function createValidationError(result, fallbackMessage = 'Los datos introducidos no son válidos.') {
+    const firstIssue = result?.error?.issues?.[0];
+    const message = firstIssue?.message || fallbackMessage;
+    const field = firstIssue?.path?.[0];
+    const error = new Error(message);
+    error.code = 'AUTH_VALIDATION_ERROR';
+    error.payload = {
+        code: 'AUTH_VALIDATION_ERROR',
+        message,
+        field,
+        issues: result?.error?.issues || []
+    };
+    return error;
+}
 
 async function request(path, options = {}) {
     const response = await fetch(`${AUTH_BASE_URL}${path}`, {
@@ -29,14 +50,46 @@ async function request(path, options = {}) {
 export const AuthService = {
     currentUser: null,
 
-    async login(credentials) {
-        const user = await request('/login', {
+    isLoggedIn() {
+        return Boolean(this.currentUser);
+    },
+
+    async register(payload) {
+        const parsedPayloadResult = RegisterRequestDTO.safeParse(payload);
+
+        if (!parsedPayloadResult.success) {
+            throw createValidationError(parsedPayloadResult, 'No se pudo validar el formulario de registro.');
+        }
+
+        const parsedPayload = parsedPayloadResult.data;
+        const user = await request('/register', {
             method: 'POST',
-            body: JSON.stringify(credentials)
+            body: JSON.stringify(parsedPayload)
         });
 
-        this.currentUser = user;
-        return user;
+        const parsedUser = RegisterResponseDTO.parse(user);
+
+        this.currentUser = parsedUser;
+        return parsedUser;
+    },
+
+    async login(credentials) {
+        const payloadResult = LoginRequestDTO.safeParse(credentials);
+
+        if (!payloadResult.success) {
+            throw createValidationError(payloadResult, 'No se pudo validar el formulario de acceso.');
+        }
+
+        const payload = payloadResult.data;
+        const user = await request('/login', {
+            method: 'POST',
+            body: JSON.stringify(payload)
+        });
+
+        const parsedUser = AuthUserResponseDTO.parse(user);
+
+        this.currentUser = parsedUser;
+        return parsedUser;
     },
 
     async logout() {
@@ -53,8 +106,10 @@ export const AuthService = {
                 method: 'GET'
             });
 
-            this.currentUser = user;
-            return user;
+            const parsedUser = AuthUserResponseDTO.parse(user);
+
+            this.currentUser = parsedUser;
+            return parsedUser;
         } catch (error) {
             if (error.status === 401) {
                 this.currentUser = null;

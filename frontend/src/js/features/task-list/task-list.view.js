@@ -1,5 +1,6 @@
 import { SelectField } from '../../shared/ui/select-field/select-field.js';
 import { TaskListService } from './task-list.service.js';
+import { TaskListViewModel } from './task-list.viewmodel.js';
 
 export const TaskListView = {
     escapeHTML(value = '') {
@@ -116,6 +117,8 @@ export const TaskListView = {
             return;
         }
 
+        const displayIdMap = TaskListViewModel.buildDisplayIdMap(tasks);
+
         tasks.forEach(task => {
             const taskRow = document.createElement('div');
             const isSelected = uiManager.selection.activeTaskId === task.id;
@@ -147,9 +150,10 @@ export const TaskListView = {
             const safeStatus = this.escapeHTML((task.status || 'pendiente').toUpperCase());
             const safeType = this.escapeHTML(task.type || TaskListService.getTaskDefaults().type);
             const safeText = this.escapeHTML(previewText);
-            const safeCreatedAt = this.escapeHTML(task.createdAt || '');
+            const safeCreatedAt = this.escapeHTML(TaskListViewModel.formatDisplayDateTime(task.createdAt));
+            const displayId = this.escapeHTML(TaskListViewModel.getDisplayId(displayIdMap, task.id));
             taskContent.innerHTML = `
-            <span class="keyword text-[var(--color-code-keyword)]">#${task.id}</span>
+            <span class="keyword text-[var(--color-code-keyword)]">#${displayId}</span>
             <span class="method text-[var(--color-code-method)]">[${task.priority.toUpperCase()}]</span>
             <span class="text-[var(--color-code-identifier)]">{${safeType}}</span>
             <span class="text-[var(--color-accent-info)]">&lt;${safeStatus}&gt;</span>

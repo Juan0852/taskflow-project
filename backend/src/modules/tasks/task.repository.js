@@ -119,5 +119,17 @@ export const TaskRepository = {
                 trashedAt
             }
         });
+    },
+
+    trashAll(userId, trashedAt) {
+        return prisma.task.updateMany({
+            where: {
+                userId,
+                trashedAt: null
+            },
+            data: {
+                trashedAt
+            }
+        });
     }
 };

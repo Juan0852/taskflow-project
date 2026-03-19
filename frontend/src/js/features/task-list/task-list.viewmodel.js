@@ -97,11 +97,14 @@ export const TaskListViewModel = {
         const [from, to] = state.activeDates.length > 0
             ? [state.activeDates[0], state.activeDates[state.activeDates.length - 1]]
             : [null, null];
+        const primarySortRule = state.sortRules[0] || 'date-desc';
+        const { sortBy, sortOrder } = this.toBackendSort(primarySortRule);
 
         return {
             search: state.searchTerm || undefined,
             type: state.activeType !== 'all' ? state.activeType : undefined,
-            sortBy: state.sortRules[0] || undefined,
+            sortBy,
+            sortOrder,
             from: from || undefined,
             to: to || undefined,
             page: state.page,
@@ -122,7 +125,6 @@ export const TaskListViewModel = {
             const matchesDate = !hasDateFilter || uiManager.filters.activeDates.includes(task.createdDate);
             const matchesSearch = !search
                 || task.text.toLowerCase().includes(search)
-                || task.id.toString().includes(search)
                 || task.type.toLowerCase().includes(search)
                 || task.status.toLowerCase().includes(search);
 
@@ -136,7 +138,7 @@ export const TaskListViewModel = {
         const statusRank = { pendiente: 1, haciendo: 2, completado: 3 };
 
         const comparators = {
-            'date-desc': (a, b) => b.id - a.id,
+            'date-desc': (a, b) => this.toSortableDate(b.createdAt) - this.toSortableDate(a.createdAt),
             'type-asc': (a, b) => a.type.localeCompare(b.type),
             'status-asc': (a, b) => (statusRank[a.status] || 99) - (statusRank[b.status] || 99),
             'priority-desc': (a, b) => (priorityRank[b.priority] || 0) - (priorityRank[a.priority] || 0)
@@ -150,10 +152,62 @@ export const TaskListViewModel = {
                 if (result !== 0) return result;
             }
 
-            return b.id - a.id;
+            return this.toSortableDate(b.createdAt) - this.toSortableDate(a.createdAt);
         });
 
         return sortedTasks;
+    },
+
+    toSortableDate(value) {
+        const parsedDate = new Date(value);
+        const timestamp = parsedDate.getTime();
+        return Number.isNaN(timestamp) ? 0 : timestamp;
+    },
+
+    toBackendSort(sortRule = 'date-desc') {
+        const mappings = {
+            'date-desc': { sortBy: 'createdAt', sortOrder: 'desc' },
+            'type-asc': { sortBy: 'type', sortOrder: 'asc' },
+            'status-asc': { sortBy: 'status', sortOrder: 'asc' },
+            'priority-desc': { sortBy: 'priority', sortOrder: 'desc' }
+        };
+
+        return mappings[sortRule] || mappings['date-desc'];
+    },
+
+    formatDisplayDateTime(value) {
+        const parsedDate = new Date(value);
+
+        if (Number.isNaN(parsedDate.getTime())) {
+            return value || '';
+        }
+
+        const year = parsedDate.getFullYear();
+        const month = String(parsedDate.getMonth() + 1).padStart(2, '0');
+        const day = String(parsedDate.getDate()).padStart(2, '0');
+        const hours = String(parsedDate.getHours()).padStart(2, '0');
+        const minutes = String(parsedDate.getMinutes()).padStart(2, '0');
+        const seconds = String(parsedDate.getSeconds()).padStart(2, '0');
+
+        return `${year}/${month}/${day} ${hours}:${minutes}:${seconds}`;
+    },
+
+    buildDisplayIdMap(tasks) {
+        const sortedTasks = [...tasks].sort((a, b) => {
+            const dateDiff = this.toSortableDate(a.createdAt) - this.toSortableDate(b.createdAt);
+
+            if (dateDiff !== 0) return dateDiff;
+
+            return String(a.id).localeCompare(String(b.id));
+        });
+
+        return new Map(
+            sortedTasks.map((task, index) => [String(task.id), index + 1])
+        );
+    },
+
+    getDisplayId(displayIdMap, taskId) {
+        return displayIdMap.get(String(taskId)) || '—';
     },
 
     ensureValidActiveType(uiManager, types) {

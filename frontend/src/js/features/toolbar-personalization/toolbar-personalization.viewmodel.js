@@ -1,9 +1,4 @@
-import { STORAGE_KEYS } from '../../shared/storage-keys.js';
-import { StorageService } from '../../shared/storage-service.js';
-
 export const ToolbarPersonalizationViewModel = {
-    storageKey: STORAGE_KEYS.TOOLBAR_CONTROLS,
-    filterStorageKey: STORAGE_KEYS.FILTER_PREFERENCES,
     defaultFilterPreferences: {
         showFiltersRow: true,
         showNameSearch: true,
@@ -23,16 +18,15 @@ export const ToolbarPersonalizationViewModel = {
             .filter(control => Boolean(control.id));
     },
 
-    getStoredVisibility(storageKey = this.storageKey) {
-        return StorageService.getJSON(storageKey, {});
+    getStoredVisibility(visibilityMap = {}) {
+        return visibilityMap && typeof visibilityMap === 'object' ? { ...visibilityMap } : {};
     },
 
-    saveVisibility(visibilityMap, storageKey = this.storageKey) {
-        StorageService.setJSON(storageKey, visibilityMap);
+    saveVisibility(visibilityMap) {
+        return this.getStoredVisibility(visibilityMap);
     },
 
-    getStoredFilterPreferences(filterStorageKey = this.filterStorageKey, fallback = this.defaultFilterPreferences) {
-        const parsed = StorageService.getJSON(filterStorageKey, {});
+    getStoredFilterPreferences(parsed = {}, fallback = this.defaultFilterPreferences) {
         return {
             showFiltersRow: parsed.showFiltersRow !== false,
             showNameSearch: parsed.showNameSearch !== false,
@@ -42,21 +36,23 @@ export const ToolbarPersonalizationViewModel = {
         };
     },
 
-    saveFilterPreferences(preferences, filterStorageKey = this.filterStorageKey) {
-        StorageService.setJSON(filterStorageKey, preferences);
+    saveFilterPreferences(preferences) {
+        return {
+            ...this.defaultFilterPreferences,
+            ...preferences
+        };
     },
 
     updateStoredVisibility(controller, controlId, isVisible) {
-        const visibilityMap = this.getStoredVisibility(controller.storageKey);
+        const visibilityMap = this.getStoredVisibility(controller.visibilityMap);
         visibilityMap[controlId] = isVisible;
-        this.saveVisibility(visibilityMap, controller.storageKey);
+        this.saveVisibility(visibilityMap);
         return visibilityMap;
     },
 
     setFilterPreference(controller, key, value) {
         if (!(key in controller.filterPreferences)) return false;
         controller.filterPreferences[key] = value;
-        this.saveFilterPreferences(controller.filterPreferences, controller.filterStorageKey);
         return true;
     },
 

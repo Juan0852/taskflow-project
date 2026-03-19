@@ -223,5 +223,16 @@ export const TaskService = {
                 ? 'No había tareas completadas para enviar a la papelera.'
                 : `Se enviaron ${result.count} tarea(s) completada(s) a la papelera.`
         );
+    },
+
+    async trashAllTasks(userId) {
+        const result = await TaskRepository.trashAll(userId, new Date());
+
+        return TaskMapper.toBulkActionResponseDTO(
+            result.count,
+            result.count === 0
+                ? 'No había tareas activas para enviar a la papelera.'
+                : `Se enviaron ${result.count} tarea(s) a la papelera.`
+        );
     }
 };

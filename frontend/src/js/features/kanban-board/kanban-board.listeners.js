@@ -57,7 +57,7 @@ export const KanbanBoardListeners = {
         dropZone.classList.remove('bg-[var(--color-bg-hover)]');
     },
 
-    handleKanbanColumnDrop(event, nextStatus, dropZone) {
+    async handleKanbanColumnDrop(event, nextStatus, dropZone) {
         event.preventDefault();
         this.handleKanbanColumnDragLeave(dropZone);
         if (this.draggedTaskId === null) return;
@@ -65,8 +65,21 @@ export const KanbanBoardListeners = {
         const task = KanbanBoardService.getTaskById(this.draggedTaskId);
         if (!task || task.status === nextStatus) return;
 
-        KanbanBoardService.moveTaskToStatus(task.id, nextStatus);
-        this.refreshVisibleTasks();
+        try {
+            await KanbanBoardService.moveTaskToStatus(task.id, nextStatus);
+            await this.refreshVisibleTasks();
+        } catch (error) {
+            if (this.dialogService) {
+                await this.dialogService.alert({
+                    title: 'No se pudo mover la tarea',
+                    message: error?.payload?.message || error?.message || 'La actualización del estado falló.',
+                    confirmText: 'Entendido',
+                    tone: 'danger'
+                });
+            }
+
+            this.refreshVisibleTasks();
+        }
     },
 
     syncWorkspaceControlsVisibility(tabId) {

@@ -1,9 +1,7 @@
 /**
  * BiTask - Task Service [Oso de Anteojos]
- * Gestión de datos con IDs secuenciales (1, 2, 3...).
+ * Caché en memoria para acompañar la transición completa al backend.
  */
-import { STORAGE_KEYS } from '../../shared/storage-keys.js';
-import { StorageService } from '../../shared/storage-service.js';
 
 export const TaskService = {
     DEFAULT_TYPE: 'general',
@@ -23,6 +21,26 @@ export const TaskService = {
         return this._tasks;
     },
 
+    findById(id) {
+        return this._tasks.find(task => task.id === id) || null;
+    },
+
+    getGuestTasks() {
+        return this._tasks.filter(task => typeof task.id === 'number');
+    },
+
+    clearGuestTasks() {
+        this._tasks = this._tasks.filter(task => typeof task.id !== 'number');
+        return this._tasks;
+    },
+
+    replaceAll(tasks = []) {
+        this._tasks = Array.isArray(tasks)
+            ? tasks.map(task => this._normalizeTask(task))
+            : [];
+        return this._tasks;
+    },
+
     /**
      * Añade una nueva tarea con ID secuencial
      */
@@ -36,7 +54,6 @@ export const TaskService = {
         };
 
         this._tasks.push(newTask);
-        this._save();
         return newTask;
     },
 
@@ -63,10 +80,7 @@ export const TaskService = {
         const initialLength = this._tasks.length;
         this._tasks = this._tasks.filter(t => t.id !== id);
 
-        const success = this._tasks.length < initialLength;
-        if (success) this._save();
-
-        return success;
+        return this._tasks.length < initialLength;
     },
 
     /**
@@ -91,7 +105,6 @@ export const TaskService = {
         }
 
         Object.assign(task, normalizedUpdates);
-        this._save();
         return task;
     },
 
@@ -106,10 +119,6 @@ export const TaskService = {
             }
         });
 
-        if (updatedCount > 0) {
-            this._save();
-        }
-
         return updatedCount;
     },
 
@@ -120,10 +129,6 @@ export const TaskService = {
         this._tasks = this._tasks.filter(task => task.status !== 'completado');
         const removedCount = initialLength - this._tasks.length;
 
-        if (removedCount > 0) {
-            this._save();
-        }
-
         return removedCount;
     },
 
@@ -133,33 +138,31 @@ export const TaskService = {
     hardReset() {
         this._tasks = [];
         this._lastId = 0;
-        this._save();
-    },
-
-    // --- MÉTODOS PRIVADOS ---
-
-    /**
-     * Persiste los datos y el estado del contador de IDs
-     */
-    _save() {
-        StorageService.setJSON(STORAGE_KEYS.TASKS_DB, this._tasks);
-        StorageService.setString(STORAGE_KEYS.TASKS_LAST_ID, this._lastId);
     },
 
     clearAll() {
         this._tasks = [];
-        this._save();
+    },
+
+    upsert(task) {
+        const normalizedTask = this._normalizeTask(task);
+        const index = this._tasks.findIndex(existingTask => existingTask.id === normalizedTask.id);
+
+        if (index >= 0) {
+            this._tasks[index] = {
+                ...this._tasks[index],
+                ...normalizedTask
+            };
+        } else {
+            this._tasks.push(normalizedTask);
+        }
+
+        return normalizedTask;
     },
 
     init() {
-        const parsedTasks = StorageService.getJSON(STORAGE_KEYS.TASKS_DB, []);
-        this._tasks = Array.isArray(parsedTasks)
-            ? parsedTasks.map(task => this._normalizeTask(task))
-            : [];
-
-        const rawLastId = StorageService.getString(STORAGE_KEYS.TASKS_LAST_ID, '0');
-        const parsedLastId = parseInt(rawLastId, 10);
-        this._lastId = Number.isFinite(parsedLastId) ? parsedLastId : 0;
+        this._tasks = [];
+        this._lastId = 0;
     },
 
     _normalizeType(type = '') {
@@ -181,6 +184,9 @@ export const TaskService = {
             type: this._normalizeType(task.type),
             status: this._normalizeStatus(task.status),
             createdAt: task.createdAt || new Date().toLocaleString(),
+            updatedAt: task.updatedAt || null,
+            completedAt: task.completedAt || null,
+            trashedAt: task.trashedAt || null,
             createdDate: fallbackDate
         };
     },

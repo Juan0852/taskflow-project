@@ -1,12 +1,15 @@
 // app.js - El Iniciador
 import { BITASK_MANUAL } from './innerhtmls.js';
-import { AuthAccessController } from './features/auth/auth-access.controller.js';
+import { AuthAccessListeners } from './features/auth/auth-access.listeners.js';
+import { PreferenceService } from './domain/preferences/preference-service.js';
+import { AuthService } from './domain/auth/auth-service.js';
+import { TaskApiService } from './domain/tasks/task-api-service.js';
 import { TaskService } from './domain/tasks/task-service.js';
 import { TaskAddPanel } from './features/task-panel/task-panel.listeners.js';
+import { TaskPanelService } from './features/task-panel/task-panel.service.js';
+import { TrashBinListeners } from './features/trash-bin/trash-bin.listeners.js';
 import { TerminalListeners } from './features/terminal/terminal.listeners.js';
 import { ToolbarPersonalization } from './features/toolbar-personalization/toolbar-personalization.controller.js';
-import { STORAGE_KEYS } from './shared/storage-keys.js';
-import { StorageService } from './shared/storage-service.js';
 import { UIManager } from './ui-manager.js';
 
 document.addEventListener('DOMContentLoaded', async () => {
@@ -39,6 +42,16 @@ document.addEventListener('DOMContentLoaded', async () => {
             filterSettings: document.getElementById('toolbar-filter-settings'),
             calendarSettings: document.getElementById('toolbar-calendar-settings')
         },
+        trashBin: {
+            trigger: document.getElementById('tool-trash'),
+            modal: document.getElementById('trash-bin-modal'),
+            backdrop: document.getElementById('trash-bin-backdrop'),
+            close: document.getElementById('trash-bin-close'),
+            list: document.getElementById('trash-bin-list'),
+            status: document.getElementById('trash-bin-status'),
+            restoreButton: document.getElementById('trash-bin-restore'),
+            emptyButton: document.getElementById('trash-bin-empty')
+        },
         dialog: {
             modal: document.getElementById('app-dialog-modal'),
             backdrop: document.getElementById('app-dialog-backdrop'),
@@ -48,13 +61,31 @@ document.addEventListener('DOMContentLoaded', async () => {
             actions: document.getElementById('app-dialog-actions')
         },
         auth: {
+            anchor: document.getElementById('auth-access-anchor'),
             trigger: document.getElementById('auth-access-trigger'),
+            userMenu: document.getElementById('auth-user-menu'),
+            userMenuLogout: document.getElementById('auth-user-menu-logout'),
             modal: document.getElementById('auth-modal'),
             backdrop: document.getElementById('auth-backdrop'),
             close: document.getElementById('auth-close'),
+            title: document.getElementById('auth-title'),
+            description: document.getElementById('auth-description'),
             form: document.getElementById('auth-form'),
+            modeToggle: document.getElementById('auth-mode-toggle'),
+            identifierField: document.getElementById('auth-identifier-field'),
             identifierInput: document.getElementById('auth-identifier'),
+            identifierError: document.getElementById('auth-identifier-error'),
+            emailField: document.getElementById('auth-email-field'),
+            emailInput: document.getElementById('auth-email'),
+            emailError: document.getElementById('auth-email-error'),
+            usernameField: document.getElementById('auth-username-field'),
+            usernameInput: document.getElementById('auth-username'),
+            usernameError: document.getElementById('auth-username-error'),
+            confirmPasswordField: document.getElementById('auth-confirm-password-field'),
+            confirmPasswordInput: document.getElementById('auth-confirm-password'),
             passwordInput: document.getElementById('auth-password'),
+            passwordError: document.getElementById('auth-password-error'),
+            confirmPasswordError: document.getElementById('auth-confirm-password-error'),
             submitButton: document.getElementById('auth-submit'),
             logoutButton: document.getElementById('auth-logout'),
             errorBox: document.getElementById('auth-error'),
@@ -103,23 +134,13 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     // Controlador de tema Dark/Light
     const ThemeControl = {
-        storageKey: STORAGE_KEYS.THEME,
         btn: null,
         iconLight: '/assets/Light.png',
         iconDark: '/assets/Dark.png',
 
-        _getStoredTheme() {
-            return StorageService.getString(this.storageKey, 'dark') || 'dark';
-        },
-
-        _saveTheme(theme) {
-            StorageService.setString(this.storageKey, theme);
-        },
-
         init(btn) {
             this.btn = btn || null;
-            const storedTheme = this._getStoredTheme();
-            this.applyTheme(storedTheme);
+            this.applyTheme(document.body.getAttribute('data-theme') || 'dark', { persist: false });
 
             if (!btn) return;
             btn.addEventListener('click', () => {
@@ -129,11 +150,13 @@ document.addEventListener('DOMContentLoaded', async () => {
             });
         },
 
-        applyTheme(theme) {
+        applyTheme(theme, options = {}) {
             const safeTheme = theme === 'light' ? 'light' : 'dark';
             document.body.setAttribute('data-theme', safeTheme);
-            this._saveTheme(safeTheme);
             this._updateThemeButton(safeTheme);
+
+            if (options.persist === false) return;
+            void PreferenceService.updatePreferences({ theme: safeTheme });
         },
 
         _updateThemeButton(activeTheme) {
@@ -312,32 +335,67 @@ document.addEventListener('DOMContentLoaded', async () => {
         }
     };
 
+    const GuestCookieStore = {
+        splashCookieName: 'bitask_guest_splash_seen_at',
+
+        get(name) {
+            const escapedName = name.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+            const match = document.cookie.match(new RegExp(`(?:^|; )${escapedName}=([^;]*)`));
+            return match ? decodeURIComponent(match[1]) : null;
+        },
+
+        set(name, value, maxAgeSeconds) {
+            document.cookie = `${name}=${encodeURIComponent(value)}; max-age=${maxAgeSeconds}; path=/; samesite=lax`;
+        },
+
+        getGuestSplashTimestamp() {
+            return this.get(this.splashCookieName);
+        },
+
+        setGuestSplashTimestamp(timestamp) {
+            this.set(this.splashCookieName, timestamp, 24 * 60 * 60);
+        }
+    };
+
     // Pantalla de arranque (2s)
     const StartupSplash = {
-        storageKey: STORAGE_KEYS.STARTUP_SPLASH_TOKEN,
-        ttlMs: 30 * 60 * 1000, // 30 minutos
+        ttlMs: 24 * 60 * 60 * 1000, // 24 horas
 
-        _isTokenValid() {
-            const parsed = StorageService.getJSON(this.storageKey, null);
-            return Boolean(parsed && parsed.expiresAt && Date.now() < parsed.expiresAt);
+        shouldShow(lastSplashShownAt) {
+            if (!lastSplashShownAt) return true;
+
+            const parsedDate = new Date(lastSplashShownAt);
+            if (Number.isNaN(parsedDate.getTime())) return true;
+
+            return Date.now() - parsedDate.getTime() >= this.ttlMs;
         },
 
-        _saveToken() {
-            const token = { expiresAt: Date.now() + this.ttlMs };
-            StorageService.setJSON(this.storageKey, token);
+        markAsShown(timestamp) {
+            if (AuthService.isLoggedIn()) {
+                void PreferenceService.updatePreferences({
+                    lastSplashShownAt: timestamp
+                });
+                return;
+            }
+
+            GuestCookieStore.setGuestSplashTimestamp(timestamp);
         },
 
-        init(splashPanel) {
+        init(splashPanel, lastSplashShownAt = null) {
             if (!splashPanel) return;
 
-            if (this._isTokenValid()) {
+            const effectiveTimestamp = AuthService.isLoggedIn()
+                ? lastSplashShownAt
+                : GuestCookieStore.getGuestSplashTimestamp();
+
+            if (!this.shouldShow(effectiveTimestamp)) {
                 splashPanel.remove();
                 return;
             }
 
             splashPanel.classList.remove('invisible', 'opacity-0');
             splashPanel.classList.add('visible', 'opacity-100');
-            this._saveToken();
+            this.markAsShown(new Date().toISOString());
 
             setTimeout(() => {
                 splashPanel.classList.remove('visible', 'opacity-100');
@@ -395,18 +453,45 @@ document.addEventListener('DOMContentLoaded', async () => {
         init(btnClear) {
             if (!btnClear) return;
             btnClear.addEventListener('click', async () => {
+                const totalTasks = TaskService.getAll().length;
+                if (!totalTasks) {
+                    await DialogService.alert({
+                        title: 'Nada que borrar',
+                        message: 'No hay tareas para mandar a la papelera.',
+                        confirmText: 'Entendido',
+                        eyebrow: 'Acción masiva'
+                    });
+                    return;
+                }
+
+                if (!AuthService.isLoggedIn()) {
+                    await DialogService.alert({
+                        title: 'Inicia sesión para usar la papelera',
+                        message: 'La papelera solo está disponible para cuentas con sesión iniciada. Puedes seguir usando "Completar todas" en modo invitado, pero para mandar tareas a la papelera necesitas iniciar sesión.',
+                        confirmText: 'Entendido',
+                        eyebrow: 'Acción masiva'
+                    });
+                    return;
+                }
+
                 const shouldClear = await DialogService.confirm({
-                    title: 'Borrar todas las tareas',
-                    message: '¿Estás seguro de que quieres borrar todas las tareas?',
-                    confirmText: 'Borrar todo',
+                    title: 'Mandar todas las tareas a la papelera',
+                    message: `Se van a mandar ${totalTasks} tarea(s) a la papelera.`,
+                    confirmText: 'Mandar a papelera',
                     cancelText: 'Cancelar',
                     tone: 'danger',
                     eyebrow: 'Acción masiva'
                 });
 
                 if (shouldClear) {
-                    TaskService.hardReset();
-                    UIManager.renderTaskList([]);
+                    const response = await TaskApiService.trashAllTasks();
+                    await UIManager.refreshVisibleTasks();
+                    await DialogService.alert({
+                        title: 'Tareas enviadas a la papelera',
+                        message: response.message,
+                        confirmText: 'Perfecto',
+                        eyebrow: 'Acción masiva'
+                    });
                 }
             });
         }
@@ -428,8 +513,11 @@ document.addEventListener('DOMContentLoaded', async () => {
                     return;
                 }
 
-                const updatedCount = TaskService.markAllAsCompleted();
-                UIManager.renderTaskList(TaskService.getAll());
+                const updatedCount = AuthService.isLoggedIn()
+                    ? (await TaskApiService.completeAllTasks()).count || 0
+                    : TaskService.markAllAsCompleted();
+
+                await UIManager.refreshVisibleTasks();
 
                 if (updatedCount === 0) {
                     await DialogService.alert({
@@ -468,10 +556,20 @@ document.addEventListener('DOMContentLoaded', async () => {
                     return;
                 }
 
+                if (!AuthService.isLoggedIn()) {
+                    await DialogService.alert({
+                        title: 'Inicia sesión para usar la papelera',
+                        message: 'Mandar tareas completadas a la papelera requiere una cuenta con sesión iniciada.',
+                        confirmText: 'Entendido',
+                        eyebrow: 'Acción masiva'
+                    });
+                    return;
+                }
+
                 const shouldClearCompleted = await DialogService.confirm({
-                    title: 'Borrar tareas completadas',
-                    message: `Se van a borrar ${completedTasks} tarea(s) completada(s).`,
-                    confirmText: 'Borrar completadas',
+                    title: 'Mandar tareas completadas a la papelera',
+                    message: `Se van a mandar ${completedTasks} tarea(s) completada(s) a la papelera.`,
+                    confirmText: 'Mandar a papelera',
                     cancelText: 'Cancelar',
                     tone: 'danger',
                     eyebrow: 'Acción masiva'
@@ -479,12 +577,13 @@ document.addEventListener('DOMContentLoaded', async () => {
 
                 if (!shouldClearCompleted) return;
 
-                const removedCount = TaskService.clearCompleted();
-                UIManager.renderTaskList(TaskService.getAll());
+                const removedCount = (await TaskApiService.trashCompletedTasks()).count || 0;
+
+                await UIManager.refreshVisibleTasks();
 
                 await DialogService.alert({
-                    title: 'Tareas borradas',
-                    message: `Se borraron ${removedCount} tarea(s) completada(s).`,
+                    title: 'Tareas enviadas a la papelera',
+                    message: `Se mandaron ${removedCount} tarea(s) completada(s) a la papelera.`,
                     confirmText: 'Perfecto',
                     eyebrow: 'Acción masiva'
                 });
@@ -495,22 +594,64 @@ document.addEventListener('DOMContentLoaded', async () => {
     /** * 3. EJECUCIÓN DE INITS
      */
 
+    async function applyPreferenceSnapshot() {
+        const preferences = await PreferenceService.getPreferences();
+        ThemeControl.applyTheme(preferences.theme, { persist: false });
+
+        if (ToolbarPersonalization.controls.length) {
+            ToolbarPersonalization.applyExternalPreferences(preferences);
+        }
+
+        return preferences;
+    }
+
     // UI & Eventos
-    StartupSplash.init(domElements.splash.panel);
     ThemeControl.init(domElements.theme.btn);
     DialogService.init(domElements.dialog);
-    await AuthAccessController.init(domElements.auth, { dialogService: DialogService });
+    await AuthAccessListeners.init(domElements.auth, { dialogService: DialogService });
+    const initialPreferences = await applyPreferenceSnapshot();
+    StartupSplash.init(domElements.splash.panel, initialPreferences.lastSplashShownAt);
     WindowControls.init(domElements.windowControls);
     TerminalUI.init(domElements.terminal);
+    UIManager.updateTerminalPrompt(AuthService.currentUser);
     TerminalInputControl.init(domElements.terminal.input);
-    TaskAddPanel.init(domElements.gui);
+    TaskAddPanel.init(domElements.gui, { dialogService: DialogService });
     TaskEditSelectedControl.init(domElements.gui.btnEditSelected, domElements.gui);
     TaskClearControl.init(domElements.gui.btnClear);
     TaskCompleteAllControl.init(domElements.gui.btnCompleteAll);
     TaskClearCompletedControl.init(domElements.gui.btnClearCompleted);
-    ToolbarPersonalization.init(domElements.toolbarSettings, domElements.gui);
+    ToolbarPersonalization.init(domElements.toolbarSettings, domElements.gui, {
+        initialVisibilityMap: initialPreferences.toolbarConfig,
+        initialFilterPreferences: initialPreferences.filterPreferences,
+        preferenceService: PreferenceService
+    });
     UIManager.init(domElements.navigation, { dialogService: DialogService });
+    TrashBinListeners.init(domElements.trashBin, { dialogService: DialogService, uiManager: UIManager });
     UIManager.switchTab('readme-file');
+
+    document.addEventListener('auth:session-changed', async (event) => {
+        const user = event.detail?.user || null;
+        await applyPreferenceSnapshot();
+        UIManager.updateTerminalPrompt(user);
+
+        if (user) {
+            const { syncedCount } = await TaskPanelService.syncGuestTasksToBackend();
+            if (syncedCount > 0) {
+                await DialogService.alert({
+                    title: 'Tareas sincronizadas',
+                    message: `Se guardaron ${syncedCount} tarea(s) de invitado dentro de tu perfil.`,
+                    confirmText: 'Perfecto',
+                    eyebrow: 'Tareas'
+                });
+            }
+
+            await UIManager.refreshVisibleTasks();
+            return;
+        }
+
+        TaskService.init();
+        await UIManager.refreshVisibleTasks();
+    });
 
     // Motores Lógicos
     TerminalListeners.init(domElements.terminal, { personalizationService: ToolbarPersonalization });

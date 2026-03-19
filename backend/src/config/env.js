@@ -8,7 +8,8 @@ const envSchema = z.object({
     PORT: z.coerce.number().int().positive().default(3000),
     DATABASE_URL: z.string().min(1),
     SESSION_SECRET: z.string().min(8),
-    CLIENT_URL: z.string().url()
+    CLIENT_URL: z.string().url(),
+    ENABLE_SWAGGER: z.enum(['true', 'false']).optional()
 });
 
 const parsedEnv = envSchema.safeParse(process.env);
@@ -20,3 +21,6 @@ if (!parsedEnv.success) {
 
 export const env = parsedEnv.data;
 export const isProduction = env.NODE_ENV === 'production';
+export const isSwaggerEnabled = env.ENABLE_SWAGGER
+    ? env.ENABLE_SWAGGER === 'true'
+    : !isProduction;

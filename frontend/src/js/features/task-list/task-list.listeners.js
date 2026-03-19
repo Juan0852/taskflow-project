@@ -3,10 +3,12 @@ import { TaskListViewModel } from './task-list.viewmodel.js';
 import { TaskListService } from './task-list.service.js';
 
 export const TaskListListeners = {
+    SEARCH_DEBOUNCE_MS: 300,
     filters: { ...TaskListViewModel.filters },
     pagination: { ...TaskListViewModel.pagination },
     selection: { ...TaskListViewModel.selection },
     sortOptions: [...TaskListViewModel.sortOptions],
+    searchDebounceTimer: null,
 
     bindTaskListEvents() {
         if (this.elements.sortAddButton) {
@@ -64,7 +66,14 @@ export const TaskListListeners = {
         return TaskListViewModel.getBackendQueryParams(this);
     },
 
-    refreshVisibleTasks() {
+    async refreshVisibleTasks() {
+        try {
+            await TaskListService.loadTasks(this.getBackendQueryParams());
+        } catch (_error) {
+            // Mientras termina la migración, si la lectura remota falla
+            // conservamos el fallback sobre la caché local para no romper la UI.
+        }
+
         this.renderTaskList(TaskListService.getAllTasks());
     },
 
@@ -110,34 +119,41 @@ export const TaskListListeners = {
         if (this.filters.sortRules.length >= 3) return;
         this.addSortRule(this._getNextAvailableSort());
         this.renderSortControls();
-        this.refreshVisibleTasks();
+        void this.refreshVisibleTasks();
     },
 
     handleSortChange(index, sortBy) {
         this.setSortRule(index, sortBy);
-        this.refreshVisibleTasks();
+        void this.refreshVisibleTasks();
     },
 
     handleRemoveSort(index) {
         this.removeSortRule(index);
         this.renderSortControls();
-        this.refreshVisibleTasks();
+        void this.refreshVisibleTasks();
     },
 
     handleTypeFilterClick(type) {
         this.setActiveType(type);
-        this.refreshVisibleTasks();
+        void this.refreshVisibleTasks();
     },
 
     handleSearchInput(rawValue) {
         const searchTerm = String(rawValue || '').toLowerCase().trim();
         this.setSearchTerm(searchTerm);
-        this.refreshVisibleTasks();
+        if (this.searchDebounceTimer) {
+            window.clearTimeout(this.searchDebounceTimer);
+        }
+
+        this.searchDebounceTimer = window.setTimeout(() => {
+            void this.refreshVisibleTasks();
+            this.searchDebounceTimer = null;
+        }, this.SEARCH_DEBOUNCE_MS);
     },
 
     handleTaskRowClick(taskId) {
         this.setSelectedTask(taskId);
-        this.refreshVisibleTasks();
+        this.renderTaskList(TaskListService.getAllTasks());
     },
 
     async handleExpandTaskClick(task, event) {
@@ -152,19 +168,25 @@ export const TaskListListeners = {
         const safeStatus = TaskListView.escapeHTML(task.status || defaults.status);
         const safePriority = TaskListView.escapeHTML(task.priority || 'media');
         const safeText = TaskListView.escapeHTML(task.text || '');
+        const safeCreatedAt = TaskListView.escapeHTML(TaskListViewModel.formatDisplayDateTime(task.createdAt));
+        const displayId = TaskListViewModel.getDisplayId(
+            TaskListViewModel.buildDisplayIdMap(TaskListService.getAllTasks()),
+            task.id
+        );
 
         await this.dialogService.alert({
-            title: `Tarea #${task.id}`,
+            title: `Tarea #${displayId}`,
             eyebrow: 'Detalle completo',
             confirmText: 'Cerrar',
             messageHTML: `
                 ${stressWarning}
                 <div class="space-y-4 text-left">
                     <div class="grid gap-3 rounded-[12px] border border-[var(--color-border)] bg-[var(--color-bg-base)] p-4 text-[13px] leading-6 text-[var(--color-text-soft)]">
-                        <div><span class="font-semibold text-[var(--color-text-strong)]">ID:</span> ${task.id}</div>
+                        <div><span class="font-semibold text-[var(--color-text-strong)]">N.º de tarea:</span> ${displayId}</div>
                         <div><span class="font-semibold text-[var(--color-text-strong)]">Prioridad:</span> ${safePriority}</div>
                         <div><span class="font-semibold text-[var(--color-text-strong)]">Tipo:</span> ${safeType}</div>
                         <div><span class="font-semibold text-[var(--color-text-strong)]">Estado:</span> ${safeStatus}</div>
+                        <div><span class="font-semibold text-[var(--color-text-strong)]">Creada:</span> ${safeCreatedAt}</div>
                     </div>
                     <div class="rounded-[12px] border border-[var(--color-border)] bg-[var(--color-bg-base)] p-4">
                         <p class="mb-3 text-[12px] uppercase tracking-[0.16em] text-[var(--color-text-muted)]">Contenido completo</p>
@@ -179,20 +201,24 @@ export const TaskListListeners = {
 
     async handleDeleteTaskClick(task, event) {
         event.stopPropagation();
+        const displayId = TaskListViewModel.getDisplayId(
+            TaskListViewModel.buildDisplayIdMap(TaskListService.getAllTasks()),
+            task.id
+        );
         const shouldDelete = await this.dialogService.confirm({
-            title: 'Eliminar tarea',
-            message: `¿Estás seguro de que quieres borrar la tarea #${task.id}?`,
-            confirmText: 'Eliminar',
+            title: 'Mover a papelera',
+            message: `¿Quieres mandar la tarea #${displayId} a la papelera?`,
+            confirmText: 'Mandar a papelera',
             cancelText: 'Cancelar',
             tone: 'danger'
         });
 
         if (!shouldDelete) return;
 
-        TaskListService.deleteTask(task.id);
+        await TaskListService.moveTaskToTrash(task.id);
         if (this.selection.activeTaskId === task.id) {
             this.selection.activeTaskId = null;
         }
-        this.refreshVisibleTasks();
+        await this.refreshVisibleTasks();
     }
 };

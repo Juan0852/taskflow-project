@@ -1,10 +1,9 @@
+import { PreferenceService } from '../../domain/preferences/preference-service.js';
 import { UIManager } from '../../ui-manager.js';
 import { ToolbarPersonalizationView } from './toolbar-personalization.view.js';
 import { ToolbarPersonalizationViewModel } from './toolbar-personalization.viewmodel.js';
 
 export const ToolbarPersonalization = {
-    storageKey: ToolbarPersonalizationViewModel.storageKey,
-    filterStorageKey: ToolbarPersonalizationViewModel.filterStorageKey,
     controls: [],
     trigger: null,
     modal: null,
@@ -16,9 +15,11 @@ export const ToolbarPersonalization = {
     calendarSettingsContainer: null,
     escapeHandler: null,
     draggedControlId: null,
+    visibilityMap: {},
+    preferenceService: PreferenceService,
     filterPreferences: { ...ToolbarPersonalizationViewModel.defaultFilterPreferences },
 
-    init(toolbarSettings, gui) {
+    init(toolbarSettings, gui, options = {}) {
         this.trigger = toolbarSettings.trigger || null;
         this.modal = toolbarSettings.modal || null;
         this.backdrop = toolbarSettings.backdrop || null;
@@ -27,9 +28,11 @@ export const ToolbarPersonalization = {
         this.visibleList = toolbarSettings.visibleList || null;
         this.filterSettingsContainer = toolbarSettings.filterSettings || null;
         this.calendarSettingsContainer = toolbarSettings.calendarSettings || null;
+        this.preferenceService = options.preferenceService || PreferenceService;
         this.controls = ToolbarPersonalizationViewModel.collectControls(gui);
+        this.visibilityMap = ToolbarPersonalizationViewModel.getStoredVisibility(options.initialVisibilityMap || {});
         this.filterPreferences = ToolbarPersonalizationViewModel.getStoredFilterPreferences(
-            this.filterStorageKey,
+            options.initialFilterPreferences || {},
             this.filterPreferences
         );
 
@@ -70,7 +73,7 @@ export const ToolbarPersonalization = {
     },
 
     getControlVisibilityMap() {
-        return ToolbarPersonalizationViewModel.getStoredVisibility(this.storageKey);
+        return ToolbarPersonalizationViewModel.getStoredVisibility(this.visibilityMap);
     },
 
     setControlVisibility(controlId, isVisible) {
@@ -86,6 +89,9 @@ export const ToolbarPersonalization = {
         const didUpdate = ToolbarPersonalizationViewModel.setFilterPreference(this, key, value);
         if (!didUpdate) return false;
 
+        void this.preferenceService.updatePreferences({
+            filterPreferences: this.filterPreferences
+        });
         UIManager.applyFilterPreferences(this.filterPreferences);
         this.renderFilterSettings();
         this.renderCalendarSetting();
@@ -162,12 +168,28 @@ export const ToolbarPersonalization = {
     },
 
     updateControlVisibility(controlId, isVisible) {
-        ToolbarPersonalizationViewModel.updateStoredVisibility(this, controlId, isVisible);
+        this.visibilityMap = ToolbarPersonalizationViewModel.updateStoredVisibility(this, controlId, isVisible);
+        void this.preferenceService.updatePreferences({
+            toolbarConfig: this.visibilityMap
+        });
 
         const control = this.controls.find(item => item.id === controlId);
         if (!control) return;
 
         control.element.classList.toggle('hidden', !isVisible);
+    },
+
+    applyExternalPreferences(preferences = {}) {
+        this.visibilityMap = ToolbarPersonalizationViewModel.getStoredVisibility(preferences.toolbarConfig || {});
+        this.filterPreferences = ToolbarPersonalizationViewModel.getStoredFilterPreferences(
+            preferences.filterPreferences || {},
+            this.filterPreferences
+        );
+        this.applyStoredVisibility();
+        UIManager.applyFilterPreferences(this.filterPreferences);
+        this.renderControlLists();
+        this.renderFilterSettings();
+        this.renderCalendarSetting();
     },
 
     open() {

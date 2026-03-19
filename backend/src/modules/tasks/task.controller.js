@@ -112,5 +112,14 @@ export const TaskController = {
         } catch (error) {
             next(error);
         }
+    },
+
+    async trashAll(req, res, next) {
+        try {
+            const response = await TaskService.trashAllTasks(req.session.userId);
+            res.status(200).json(response);
+        } catch (error) {
+            next(error);
+        }
     }
 };

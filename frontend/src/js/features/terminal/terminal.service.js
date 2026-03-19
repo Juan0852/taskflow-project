@@ -1,10 +1,19 @@
+import { AuthService } from '../../domain/auth/auth-service.js';
+import { TaskApiService } from '../../domain/tasks/task-api-service.js';
 import { TaskService } from '../../domain/tasks/task-service.js';
 import { UIManager } from '../../ui-manager.js';
 
 export const TerminalService = {
-    addTask(taskText, priority, type, status) {
+    _buildAuthRequiredError(message) {
+        const error = new Error(message);
+        error.code = 'AUTH_REQUIRED_FOR_TRASH_ACTIONS';
+        return error;
+    },
+
+    async addTask(taskText, priority, type, status) {
         TaskService.add(taskText, priority, type, status);
-        this.refreshVisibleTasks();
+        await this.refreshVisibleTasks();
+        return true;
     },
 
     removeTask(taskId) {
@@ -23,32 +32,45 @@ export const TerminalService = {
         return updated;
     },
 
-    completeAllTasks() {
-        const updatedCount = TaskService.markAllAsCompleted();
-        this.refreshVisibleTasks();
-        return updatedCount;
+    async completeAllTasks() {
+        if (!AuthService.isLoggedIn()) {
+            const updatedCount = TaskService.markAllAsCompleted();
+            await this.refreshVisibleTasks();
+            return updatedCount;
+        }
+
+        const response = await TaskApiService.completeAllTasks();
+        await this.refreshVisibleTasks();
+        return response.count || 0;
     },
 
-    clearAllTasks() {
-        const totalTasks = TaskService.getAll().length;
-        TaskService.hardReset();
-        this.refreshVisibleTasks();
-        return totalTasks;
+    async clearAllTasks() {
+        if (!AuthService.isLoggedIn()) {
+            throw this._buildAuthRequiredError('Mandar todas las tareas a la papelera requiere iniciar sesión.');
+        }
+
+        const response = await TaskApiService.trashAllTasks();
+        await this.refreshVisibleTasks();
+        return response.count || 0;
     },
 
-    clearCompletedTasks() {
-        const removedCount = TaskService.clearCompleted();
-        this.refreshVisibleTasks();
-        return removedCount;
+    async clearCompletedTasks() {
+        if (!AuthService.isLoggedIn()) {
+            throw this._buildAuthRequiredError('Mandar tareas completadas a la papelera requiere iniciar sesión.');
+        }
+
+        const response = await TaskApiService.trashCompletedTasks();
+        await this.refreshVisibleTasks();
+        return response.count || 0;
     },
 
     getAllTasks() {
         return TaskService.getAll();
     },
 
-    refreshVisibleTasks() {
+    async refreshVisibleTasks() {
         if (typeof UIManager.refreshVisibleTasks === 'function') {
-            UIManager.refreshVisibleTasks();
+            await UIManager.refreshVisibleTasks();
             return;
         }
 

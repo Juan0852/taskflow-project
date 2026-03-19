@@ -5,6 +5,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>BiTask - Oso de Anteojos Edition</title>
+    <link rel="icon" type="image/png" href="/assets/Favicon.png">
     <link rel="stylesheet" href="/src/style.css">
 </head>
 
@@ -33,13 +34,27 @@
         </div>
         <div class="flex items-center gap-3">
             <div class="ide-title">BiTask IDE v1.0 [Oso de Anteojos]</div>
-            <button
-                id="auth-access-trigger"
-                type="button"
-                class="inline-flex h-9 items-center justify-center rounded-md border border-[var(--color-accent-border)] bg-[var(--color-accent-bg)] px-4 text-[13px] font-medium text-[var(--color-text-strong)] transition-[background-color,border-color,color] duration-200 hover:bg-[var(--color-accent-hover)]"
-                aria-label="Abrir acceso de usuario">
-                Iniciar sesión
-            </button>
+            <div id="auth-access-anchor" class="relative">
+                <button
+                    id="auth-access-trigger"
+                    type="button"
+                    class="inline-flex h-9 items-center justify-center rounded-md border border-[var(--color-accent-border)] bg-[var(--color-accent-bg)] px-4 text-[13px] font-medium text-[var(--color-text-strong)] transition-[background-color,border-color,color] duration-200 hover:bg-[var(--color-accent-hover)]"
+                    aria-label="Abrir acceso de usuario"
+                    aria-haspopup="menu"
+                    aria-expanded="false">
+                    Iniciar sesión
+                </button>
+                <div
+                    id="auth-user-menu"
+                    class="absolute right-0 top-[calc(100%+8px)] z-[1200] hidden min-w-[180px] rounded-[12px] border border-[var(--color-border)] bg-[var(--color-bg-surface)] p-2 shadow-[0_18px_40px_rgba(0,0,0,0.28)]">
+                    <button
+                        id="auth-user-menu-logout"
+                        type="button"
+                        class="inline-flex h-10 w-full items-center justify-start rounded-[10px] px-3 text-left text-[13px] font-medium text-[var(--color-text-soft)] transition-colors duration-200 hover:bg-[var(--color-bg-hover)] hover:text-[var(--color-text-strong)]">
+                        Cerrar sesión
+                    </button>
+                </div>
+            </div>
         </div>
     </header>
 
@@ -55,6 +70,14 @@
                 title="Configurar toolbar"
                 class="inline-flex h-[30px] w-[30px] cursor-pointer items-center justify-center bg-transparent p-0 opacity-60 transition-opacity duration-200 hover:opacity-100">
                 <img src="/assets/Settings.svg" alt="" aria-hidden="true" class="h-[28px] w-[28px] text-[var(--color-text)] [filter:var(--tool-icon-filter)]">
+            </button>
+            <button
+                id="tool-trash"
+                type="button"
+                aria-label="Abrir papelera"
+                title="Abrir papelera"
+                class="inline-flex h-[30px] w-[30px] cursor-pointer items-center justify-center bg-transparent p-0 opacity-60 transition-opacity duration-200 hover:opacity-100">
+                <img src="/assets/Trash.png" alt="" aria-hidden="true" class="h-[28px] w-[28px] text-[var(--color-text)] [filter:var(--tool-icon-filter)]">
             </button>
             <img src="/assets/More.png" id="tool-theme" alt="Theme Toggle" class="tool-icon icon-tint mt-auto h-[30px] w-[30px] cursor-pointer text-[var(--color-text)] opacity-60 [filter:var(--sun-icon-filter)]" title="Cambiar tema (Dark/Light)">
             <img src="/assets/Terminal.png" id="tool-terminal" alt="Terminal" class="tool-icon icon-tint mt-0 h-[30px] w-[30px] cursor-pointer text-[var(--color-text)] opacity-60 [filter:var(--tool-icon-filter)]">
@@ -173,7 +196,7 @@
                     Si necesitas mas informacion o una guia rapida: /bitask -help <br>
                 </div>
                 <div class="terminal-input-line flex items-center border-t border-[var(--color-border)] px-[15px] py-[5px]">
-                    <span class="prompt pl-[10px] text-[15px] text-[var(--color-code-string)]">bitask@colombia:~$</span>
+                    <span id="terminal-prompt" class="prompt pl-[10px] text-[15px] text-[var(--color-code-string)]">guest/bitask@colombia:~$</span>
                     <input type="text" id="cli-input" autocomplete="off" class="flex-1 border-0 bg-transparent font-inherit text-[15px] text-[var(--color-text-strong)] outline-none [caret-shape:block]">
                 </div>
             </section>
@@ -225,6 +248,48 @@
                     <p class="mb-4 text-[12px] uppercase tracking-[0.16em] text-[var(--color-text-muted)]">Zona de calendario</p>
                     <div id="toolbar-calendar-settings" class="space-y-3"></div>
                 </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="trash-bin-modal" class="fixed inset-0 z-[1250] hidden items-center justify-center p-4">
+        <div id="trash-bin-backdrop" class="absolute inset-0 bg-[rgba(11,16,24,0.6)] backdrop-blur-[3px]"></div>
+        <div class="relative z-[1] flex w-full max-w-[760px] flex-col overflow-hidden rounded-[16px] border border-[var(--color-border)] bg-[var(--color-bg-surface)] shadow-[0_28px_90px_rgba(0,0,0,0.48)]">
+            <div class="flex items-start justify-between gap-4 border-b border-[var(--color-border)] px-6 py-5">
+                <div>
+                    <p class="text-[11px] uppercase tracking-[0.18em] text-[var(--color-text-muted)]">Reciclaje</p>
+                    <h2 class="mt-2 text-[20px] font-semibold text-[var(--color-text-strong)]">Papelera de tareas</h2>
+                    <p class="mt-2 text-[13px] leading-6 text-[var(--color-text-soft)]">
+                        Aquí aparecen las tareas eliminadas. Puedes restaurar una seleccionada o vaciar la papelera definitivamente.
+                    </p>
+                </div>
+                <button
+                    id="trash-bin-close"
+                    type="button"
+                    aria-label="Cerrar papelera"
+                    class="inline-flex h-9 w-9 items-center justify-center rounded-md border border-[var(--color-border)] bg-[var(--color-bg-base)] text-[var(--color-text-soft)] transition-colors duration-200 hover:bg-[var(--color-bg-hover)] hover:text-[var(--color-text-strong)]">
+                    <span class="text-[18px] leading-none">×</span>
+                </button>
+            </div>
+            <div class="flex flex-col gap-4 px-6 py-5">
+                <div class="flex flex-wrap items-center justify-between gap-3">
+                    <p id="trash-bin-status" class="text-[13px] leading-6 text-[var(--color-text-soft)]">Cargando tareas eliminadas...</p>
+                    <div class="flex flex-wrap items-center gap-3">
+                        <button
+                            id="trash-bin-restore"
+                            type="button"
+                            class="inline-flex h-10 items-center justify-center rounded-md border border-[var(--color-accent-border)] bg-[var(--color-accent-bg)] px-4 text-[13px] font-medium text-[var(--color-text-strong)] transition-[background-color,border-color,color,opacity] duration-200 hover:bg-[var(--color-accent-hover)]">
+                            Restaurar seleccionada
+                        </button>
+                        <button
+                            id="trash-bin-empty"
+                            type="button"
+                            class="inline-flex h-10 items-center justify-center rounded-md border border-[var(--color-danger-border)] bg-[var(--color-danger-bg)] px-4 text-[13px] font-medium text-[var(--color-danger-text)] transition-[background-color,border-color,color,opacity] duration-200 hover:bg-[var(--color-danger-hover)]">
+                            Vaciar papelera
+                        </button>
+                    </div>
+                </div>
+                <div id="trash-bin-list" class="max-h-[420px] space-y-3 overflow-y-auto rounded-[12px] border border-[var(--color-border)] bg-[var(--color-bg-editor)] p-4"></div>
             </div>
         </div>
     </div>
@@ -311,60 +376,110 @@
 
     <div id="auth-modal" class="fixed inset-0 z-[1350] hidden items-center justify-center p-4">
         <div id="auth-backdrop" class="absolute inset-0 bg-[rgba(11,16,24,0.68)] backdrop-blur-[3px]"></div>
-        <div class="relative z-[1] flex w-full max-w-[460px] flex-col overflow-hidden rounded-[16px] border border-[var(--color-border)] bg-[var(--color-bg-surface)] shadow-[0_28px_90px_rgba(0,0,0,0.5)]">
-            <div class="flex items-start justify-between gap-4 border-b border-[var(--color-border)] px-6 py-5">
-                <div>
-                    <p class="text-[11px] uppercase tracking-[0.18em] text-[var(--color-text-muted)]">Autenticación</p>
-                    <h2 class="mt-2 text-[18px] font-semibold text-[var(--color-text-strong)]">Iniciar sesión</h2>
-                    <p class="mt-2 text-[13px] leading-6 text-[var(--color-text-soft)]">
-                        Conéctate para empezar a probar el backend real sin tocar todavía la persistencia local de tareas.
-                    </p>
-                </div>
-                <button
-                    id="auth-close"
-                    type="button"
-                    aria-label="Cerrar acceso"
-                    class="inline-flex h-9 w-9 items-center justify-center rounded-md border border-[var(--color-border)] bg-[var(--color-bg-base)] text-[var(--color-text-soft)] transition-colors duration-200 hover:bg-[var(--color-bg-hover)] hover:text-[var(--color-text-strong)]">
-                    <span class="text-[18px] leading-none">×</span>
-                </button>
+        <div class="relative z-[1] grid w-full max-w-[940px] overflow-hidden rounded-[20px] border border-[var(--color-border)] bg-[var(--color-bg-surface)] shadow-[0_28px_90px_rgba(0,0,0,0.5)] lg:grid-cols-[540px_minmax(360px,1fr)]">
+            <div class="relative hidden overflow-hidden bg-[var(--color-bg-base)] lg:block">
+                <img src="/assets/Logo_LoginForm.png" alt="BiTask login art" class="absolute inset-0 h-full w-full object-cover object-center">
             </div>
-            <div class="space-y-5 px-6 py-5">
-                <div id="auth-session-state" class="hidden rounded-[12px] border border-[var(--color-accent-border)] bg-[var(--color-accent-bg)] px-4 py-3 text-[13px] leading-6 text-[var(--color-text-strong)]"></div>
-                <div id="auth-error" class="hidden rounded-[12px] border border-[var(--color-danger-border)] bg-[var(--color-danger-bg)] px-4 py-3 text-[13px] leading-6 text-[var(--color-danger-text)]"></div>
-                <form id="auth-form" class="space-y-4">
-                    <label class="flex flex-col gap-2">
+            <div class="relative flex flex-col">
+                <div class="flex flex-1 flex-col justify-center px-6 py-8 lg:px-8">
+                    <div class="w-full">
+                        <div class="relative">
+                            <button
+                                id="auth-close"
+                                type="button"
+                                aria-label="Cerrar acceso"
+                                class="absolute right-0 top-0 inline-flex h-9 w-9 items-center justify-center rounded-md border border-[var(--color-border)] bg-[var(--color-bg-base)] text-[var(--color-text-soft)] transition-colors duration-200 hover:bg-[var(--color-bg-hover)] hover:text-[var(--color-text-strong)]">
+                                <span class="text-[18px] leading-none">×</span>
+                            </button>
+                            <div class="flex w-full flex-col items-center text-center">
+                                <p class="text-[11px] uppercase tracking-[0.18em] text-[var(--color-text-muted)]">Autenticación</p>
+                                <h2 id="auth-title" class="mt-2 text-[22px] font-semibold text-[var(--color-text-strong)]">Iniciar sesión</h2>
+                                <p id="auth-description" class="mt-3 max-w-[320px] text-[13px] leading-6 text-[var(--color-text-soft)]">
+                                    Conéctate para tener todas las funciones de BiTask y empezar a organizar tu flujo como desarrollador.
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="mt-4 w-full space-y-6">
+                        <div id="auth-session-state" class="hidden rounded-[12px] border border-[var(--color-accent-border)] bg-[var(--color-accent-bg)] px-4 py-3 text-[13px] leading-6 text-[var(--color-text-strong)]"></div>
+                        <div id="auth-error" class="hidden rounded-[12px] border border-[var(--color-danger-border)] bg-[var(--color-danger-bg)] px-4 py-3 text-center text-[13px] leading-6 text-[var(--color-danger-text)]"></div>
+                        <form id="auth-form" novalidate class="space-y-5">
+                    <label id="auth-identifier-field" class="flex flex-col gap-3">
                         <span class="text-[12px] uppercase tracking-[0.14em] text-[var(--color-text-muted)]">Correo o username</span>
                         <input
                             id="auth-identifier"
                             type="text"
                             autocomplete="username"
-                            placeholder="user@example.com o sampleuser"
-                            class="rounded-[10px] border border-[var(--color-border-soft)] bg-[var(--color-bg-base)] px-4 py-3 text-[14px] text-[var(--color-text-strong)] outline-none transition-colors duration-200 focus:border-[var(--color-accent-border)]">
+                            placeholder="&quot;Usuario@ejemplo.com&quot; o &quot;Ejemplo123&quot;"
+                            class="w-full rounded-[10px] border border-[var(--color-border-soft)] bg-[var(--color-bg-base)] px-4 py-3 text-[14px] text-[var(--color-text-strong)] outline-none transition-colors duration-200 focus:border-[var(--color-accent-border)]">
+                        <span id="auth-identifier-error" class="hidden text-center text-[11px] leading-5 text-[var(--color-danger-text)]"></span>
                     </label>
-                    <label class="flex flex-col gap-2">
+                    <label id="auth-email-field" class="hidden flex flex-col gap-3">
+                        <span class="text-[12px] uppercase tracking-[0.14em] text-[var(--color-text-muted)]">Correo electrónico</span>
+                        <input
+                            id="auth-email"
+                            type="email"
+                            autocomplete="email"
+                            placeholder="user@example.com"
+                            class="w-full rounded-[10px] border border-[var(--color-border-soft)] bg-[var(--color-bg-base)] px-4 py-3 text-[14px] text-[var(--color-text-strong)] outline-none transition-colors duration-200 focus:border-[var(--color-accent-border)]">
+                        <span id="auth-email-error" class="hidden text-center text-[11px] leading-5 text-[var(--color-danger-text)]"></span>
+                    </label>
+                    <label id="auth-username-field" class="hidden flex flex-col gap-3">
+                        <span class="text-[12px] uppercase tracking-[0.14em] text-[var(--color-text-muted)]">Nombre de usuario</span>
+                        <input
+                            id="auth-username"
+                            type="text"
+                            autocomplete="username"
+                            placeholder="Carlitos23.dev"
+                            class="w-full rounded-[10px] border border-[var(--color-border-soft)] bg-[var(--color-bg-base)] px-4 py-3 text-[14px] text-[var(--color-text-strong)] outline-none transition-colors duration-200 focus:border-[var(--color-accent-border)]">
+                        <span id="auth-username-error" class="hidden text-center text-[11px] leading-5 text-[var(--color-danger-text)]"></span>
+                    </label>
+                    <label class="flex flex-col gap-3">
                         <span class="text-[12px] uppercase tracking-[0.14em] text-[var(--color-text-muted)]">Contraseña</span>
                         <input
                             id="auth-password"
                             type="password"
                             autocomplete="current-password"
                             placeholder="Introduce tu contraseña"
-                            class="rounded-[10px] border border-[var(--color-border-soft)] bg-[var(--color-bg-base)] px-4 py-3 text-[14px] text-[var(--color-text-strong)] outline-none transition-colors duration-200 focus:border-[var(--color-accent-border)]">
+                            class="w-full rounded-[10px] border border-[var(--color-border-soft)] bg-[var(--color-bg-base)] px-4 py-3 text-[14px] text-[var(--color-text-strong)] outline-none transition-colors duration-200 focus:border-[var(--color-accent-border)]">
+                        <span id="auth-password-error" class="hidden text-center text-[11px] leading-5 text-[var(--color-danger-text)]"></span>
                     </label>
-                    <div class="flex items-center justify-end gap-3 pt-2">
-                        <button
-                            id="auth-logout"
-                            type="button"
-                            class="hidden inline-flex h-10 items-center justify-center rounded-[10px] border border-[var(--color-border)] bg-[var(--color-bg-base)] px-4 text-[13px] font-medium text-[var(--color-text-soft)] transition-colors duration-200 hover:bg-[var(--color-bg-hover)] hover:text-[var(--color-text-strong)]">
-                            Cerrar sesión
-                        </button>
+                    <label id="auth-confirm-password-field" class="hidden flex flex-col gap-3">
+                        <span class="text-[12px] uppercase tracking-[0.14em] text-[var(--color-text-muted)]">Confirmar contraseña</span>
+                        <input
+                            id="auth-confirm-password"
+                            type="password"
+                            autocomplete="new-password"
+                            placeholder="Vuelve a escribir tu contraseña"
+                            class="w-full rounded-[10px] border border-[var(--color-border-soft)] bg-[var(--color-bg-base)] px-4 py-3 text-[14px] text-[var(--color-text-strong)] outline-none transition-colors duration-200 focus:border-[var(--color-accent-border)]">
+                        <span id="auth-confirm-password-error" class="hidden text-center text-[11px] leading-5 text-[var(--color-danger-text)]"></span>
+                    </label>
+                    <div class="flex flex-col items-center gap-3 pt-2">
                         <button
                             id="auth-submit"
                             type="submit"
-                            class="inline-flex h-10 items-center justify-center rounded-[10px] border border-[var(--color-accent-border)] bg-[var(--color-accent-bg)] px-4 text-[13px] font-medium text-[var(--color-text-strong)] transition-colors duration-200 hover:bg-[var(--color-accent-hover)]">
+                            class="inline-flex h-10 w-full items-center justify-center rounded-[10px] border border-[var(--color-accent-border)] bg-[var(--color-accent-bg)] px-4 text-[13px] font-medium text-[var(--color-text-strong)] transition-colors duration-200 hover:bg-[var(--color-accent-hover)]">
                             Entrar
                         </button>
+                        <button
+                            id="auth-logout"
+                            type="button"
+                            class="hidden inline-flex h-10 w-full items-center justify-center rounded-[10px] border border-[var(--color-border)] bg-[var(--color-bg-base)] px-4 text-[13px] font-medium text-[var(--color-text-soft)] transition-colors duration-200 hover:bg-[var(--color-bg-hover)] hover:text-[var(--color-text-strong)]">
+                            Cerrar sesión
+                        </button>
                     </div>
-                </form>
+                    <div class="flex items-center justify-center gap-2 pt-1 text-[12px]">
+                        <span class="text-[var(--color-text-muted)]">¿No tienes cuenta?</span>
+                        <button
+                            id="auth-mode-toggle"
+                            type="button"
+                            class="bg-transparent p-0 text-[12px] font-medium text-[var(--color-accent-info)] underline-offset-2 transition-colors duration-200 hover:text-[var(--color-text-strong)] hover:underline">
+                            Crea una
+                        </button>
+                    </div>
+                        </form>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
