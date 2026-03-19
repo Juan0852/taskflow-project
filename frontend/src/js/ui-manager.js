@@ -13,6 +13,7 @@ export const UIManager = {
         taskContainer: document.getElementById('task-list-container'), // El area del editor
         terminalOutput: document.querySelector('.log-output'),
         terminalInput: document.getElementById('cli-input'),
+        terminalPrompt: document.getElementById('terminal-prompt'),
         searchInput: document.getElementById('gui-search-task'),
         typeFilters: document.getElementById('task-type-filters'),
         filtersRow: document.getElementById('task-type-filters')?.parentElement || null,
@@ -64,8 +65,9 @@ export const UIManager = {
         this.renderSortControls();
         this.renderCalendarGrid();
 
-        // Renderizar las tareas iniciales
-        this.renderTaskList(TaskService.getAll());
+        // Primer render: intentamos hidratar desde backend y, si falla,
+        // el propio refresh conserva el fallback local.
+        void this.refreshVisibleTasks();
     },
 
     applyFilterPreferences(preferences = {}) {
@@ -96,7 +98,7 @@ export const UIManager = {
 
         this.renderSortControls();
         this.renderCalendarGrid();
-        this.renderTaskList(TaskService.getAll());
+        void this.refreshVisibleTasks();
     },
 
     /**
@@ -126,6 +128,17 @@ export const UIManager = {
         if (this.elements.terminalOutput) {
             this.elements.terminalOutput.innerHTML = '';
         }
+    },
+
+    updateTerminalPrompt(user = null) {
+        if (!this.elements.terminalPrompt) return;
+
+        const rawIdentity = typeof user?.username === 'string' && user.username.trim()
+            ? user.username.trim()
+            : 'guest';
+
+        const safeIdentity = rawIdentity.replace(/\s+/g, '').toLowerCase();
+        this.elements.terminalPrompt.textContent = `${safeIdentity}/bitask@colombia:~$`;
     },
 
     _escapeHTML(str) {
