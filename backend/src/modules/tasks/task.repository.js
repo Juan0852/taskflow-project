@@ -64,7 +64,18 @@ export const TaskRepository = {
         });
     },
 
-    getDistinctTypesByUserId(userId, where = {}) {
+    deleteTrashByUserId(userId) {
+        return prisma.task.deleteMany({
+            where: {
+                userId,
+                trashedAt: {
+                    not: null
+                }
+            }
+        });
+    },
+
+    getDistinctTypesByUserId(userId, { where = {}, take = 10 } = {}) {
         return prisma.task.findMany({
             where: {
                 userId,
@@ -74,6 +85,7 @@ export const TaskRepository = {
             select: {
                 type: true
             },
+            take,
             orderBy: {
                 type: 'asc'
             }

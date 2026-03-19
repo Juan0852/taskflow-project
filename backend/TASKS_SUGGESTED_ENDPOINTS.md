@@ -55,6 +55,7 @@ Estos endpoints ya existen hoy en el backend:
 - `PATCH /api/tasks/:id`
 - `PATCH /api/tasks/:id/trash`
 - `PATCH /api/tasks/:id/restore`
+- `DELETE /api/tasks/bulk/delete-trash`
 - `DELETE /api/tasks/:id`
 - `PATCH /api/tasks/bulk/complete-all`
 - `PATCH /api/tasks/bulk/trash-completed`
@@ -247,7 +248,28 @@ Aunque la UX normal pase primero por la papelera, el sistema necesita seguir ten
 
 ---
 
-### 8. Marcar todas como completadas
+### 8. Vaciar papelera
+
+- `DELETE /api/tasks/bulk/delete-trash`
+
+#### Para qué sirve
+
+Eliminar definitivamente todas las tareas que ya están en papelera para el usuario autenticado.
+
+#### Por qué importa
+
+La papelera queda incompleta si solo permite listar, restaurar o borrar ítems sueltos.
+Hace falta una acción masiva final para “vaciar papelera” de una sola vez.
+
+#### Partes del frontend que podrían depender de esto
+
+- vista de papelera
+- acción masiva de vaciar papelera
+- confirmación destructiva antes de borrar todo definitivamente
+
+---
+
+### 9. Marcar todas como completadas
 
 - `PATCH /api/tasks/bulk/complete-all`
 
@@ -266,7 +288,7 @@ Hoy ya existe como acción local en el frontend y claramente pertenece a reglas 
 
 ---
 
-### 9. Mandar completadas a papelera
+### 10. Mandar completadas a papelera
 
 - `PATCH /api/tasks/bulk/trash-completed`
 
@@ -286,7 +308,7 @@ Bajo el modelo de papelera del backend, esto seguramente debería pasar primero 
 
 ---
 
-### 10. Traer sugerencias de tipos de tarea
+### 11. Traer sugerencias de tipos de tarea
 
 - `GET /api/tasks/types`
 
@@ -317,7 +339,7 @@ Si la lista crece mucho, este endpoint no debería devolver el universo completo
 
 ---
 
-### 11. Buscar tareas
+### 12. Buscar tareas
 
 - `GET /api/tasks?search=...`
 
@@ -346,7 +368,7 @@ En cuanto las tareas dejen de vivir solo en memoria, la búsqueda debe apoyarse 
 
 ---
 
-### 12. Filtrar tareas por rango de fechas
+### 13. Filtrar tareas por rango de fechas
 
 - `GET /api/tasks?from=...&to=...`
 
@@ -473,6 +495,19 @@ Sigue abierto.
 ### 4. ¿La acción final de “borrar completadas” debería significar papelera o borrado definitivo?
 
 Sigue abierto.
+
+### 5. ¿Cómo debe comportarse la búsqueda en vivo para no disparar demasiadas peticiones?
+
+Cuando `search` empiece a pegarle al backend de verdad, no deberíamos hacer una request por cada tecla sin control.
+
+La implementación deseable más adelante sería algo como:
+
+- `debounce` en frontend,
+- mínimo de caracteres antes de disparar búsqueda real,
+- cancelación de requests anteriores cuando llegue una nueva,
+- y volver al listado normal cuando el término quede vacío.
+
+Se deja aquí como tarea pendiente de integración real frontend-backend.
 
 ---
 

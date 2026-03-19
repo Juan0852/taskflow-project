@@ -20,6 +20,18 @@ function buildListWhere(query, { trashed = false } = {}) {
         where.type = query.type.trim().toLowerCase();
     }
 
+    if (query.from || query.to) {
+        where.createdAt = {};
+
+        if (query.from) {
+            where.createdAt.gte = new Date(`${query.from}T00:00:00.000Z`);
+        }
+
+        if (query.to) {
+            where.createdAt.lte = new Date(`${query.to}T23:59:59.999Z`);
+        }
+    }
+
     if (query.status) {
         where.status = TaskMapper.toDbStatus(query.status);
     }
@@ -71,9 +83,21 @@ export const TaskService = {
         return TaskMapper.toTaskListResponseDTO(tasks, meta);
     },
 
-    async getAvailableTypes(userId, { trashed = false } = {}) {
+    async getAvailableTypes(userId, query = {}) {
+        const where = {
+            trashedAt: query.scope === 'trash' ? { not: null } : null
+        };
+
+        if (query.search) {
+            where.type = {
+                contains: query.search.trim().toLowerCase(),
+                mode: 'insensitive'
+            };
+        }
+
         const rows = await TaskRepository.getDistinctTypesByUserId(userId, {
-            trashedAt: trashed ? { not: null } : null
+            where,
+            take: query.limit ?? 10
         });
 
         return TaskMapper.toTypesResponseDTO(rows.map((row) => row.type));
@@ -166,6 +190,17 @@ export const TaskService = {
             ok: true,
             message: 'La tarea se eliminó definitivamente.'
         };
+    },
+
+    async emptyTrash(userId) {
+        const result = await TaskRepository.deleteTrashByUserId(userId);
+
+        return TaskMapper.toBulkActionResponseDTO(
+            result.count,
+            result.count === 0
+                ? 'No había tareas en la papelera para eliminar definitivamente.'
+                : `Se eliminaron definitivamente ${result.count} tarea(s) de la papelera.`
+        );
     },
 
     async markAllAsCompleted(userId) {

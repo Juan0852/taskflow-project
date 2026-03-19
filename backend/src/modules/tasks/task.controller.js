@@ -32,8 +32,8 @@ export const TaskController = {
 
     async getTypes(req, res, next) {
         try {
-            const includeTrashed = req.query.scope === 'trash';
-            const response = await TaskService.getAvailableTypes(req.session.userId, { trashed: includeTrashed });
+            const query = TaskRequestDTO.parseTypesQuery(req.query);
+            const response = await TaskService.getAvailableTypes(req.session.userId, query);
             res.status(200).json(response);
         } catch (error) {
             next(error);
@@ -81,6 +81,15 @@ export const TaskController = {
     async remove(req, res, next) {
         try {
             const response = await TaskService.deleteTask(req.session.userId, req.params.id);
+            res.status(200).json(response);
+        } catch (error) {
+            next(error);
+        }
+    },
+
+    async emptyTrash(req, res, next) {
+        try {
+            const response = await TaskService.emptyTrash(req.session.userId);
             res.status(200).json(response);
         } catch (error) {
             next(error);
