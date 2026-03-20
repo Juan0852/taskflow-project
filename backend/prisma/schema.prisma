@@ -1,160 +1,43 @@
-// -----------------------------------------------------------------------------
-// DATASOURCE
-// -----------------------------------------------------------------------------
-// Aqui definimos de que tipo sera la base de datos real del proyecto.
-// Prisma usara PostgreSQL tanto en desarrollo local como en produccion.
-// La URL de conexion no se escribe aqui: se toma desde la variable DATABASE_URL
-// del archivo .env para no exponer credenciales dentro del codigo fuente.
-datasource db {
-  provider = "postgresql"
-  url      = env("DATABASE_URL")
-}
-
-// -----------------------------------------------------------------------------
-// GENERATOR
-// -----------------------------------------------------------------------------
-// Este bloque le dice a Prisma que genere el cliente de acceso a base de datos.
-// Ese cliente sera el que luego importaremos en Node/Express para hacer queries
-// como findMany, create, update, delete, etc., sin escribir SQL manual para
-// cada caso sencillo.
 generator client {
   provider = "prisma-client-js"
 }
 
-// -----------------------------------------------------------------------------
-// ENUMS
-// -----------------------------------------------------------------------------
-// Los enums nos permiten cerrar valores que no deberian ser libres.
-// Aqui conviene cerrar estados, prioridad y tema visual, porque son catalogos
-// pequenos y bien definidos dentro del proyecto.
-
-// Estado funcional de una tarea dentro del sistema.
-// Se mapea luego en frontend a etiquetas como pendiente, haciendo y completado.
-enum TaskStatus {
-  PENDING
-  IN_PROGRESS
-  COMPLETED
+datasource db {
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
 }
 
-// Prioridad funcional de la tarea.
-// Se mantiene cerrada para evitar strings inconsistentes en la base de datos.
-enum TaskPriority {
-  LOW
-  MEDIUM
-  HIGH
-}
-
-// Tema visual persistido para el usuario.
-// Por ahora solo contemplamos dark y light.
-enum Theme {
-  DARK
-  LIGHT
-}
-
-// -----------------------------------------------------------------------------
-// MODEL: USER
-// -----------------------------------------------------------------------------
-// Representa al usuario autenticable del sistema.
-// Desde aqui cuelgan las tareas y las preferencias persistidas.
 model User {
-  // Identificador primario del usuario.
-  // Usamos cuid() porque funciona bien en APIs web y evita depender de ids
-  // numericos secuenciales para exponer recursos.
   id              String          @id @default(cuid())
-
-  // Email del usuario. Se usa como credencial principal y debe ser unico.
   email           String          @unique
-
-  // Nombre de usuario visible y obligatorio.
-  // Tambien debe ser unico para evitar colisiones entre cuentas.
   username        String          @unique
-
-  // Hash de la contrasena.
-  // Nunca se guarda la contrasena en claro; aqui ira argon2.
   passwordHash    String
-
-  // Nombre visible opcional. Puede servir para perfil y UX sin obligar a que
-  // el username sea el texto que siempre se muestra en pantalla.
   displayName     String?
-
-  // URL o path publico de la imagen de perfil.
-  // Por ahora solo guardamos la referencia, no el binario en base de datos.
   profileImageUrl String?
-
-  // Permite desactivar cuentas sin necesidad de borrar informacion historica.
   isActive        Boolean         @default(true)
-
-  // Ultima vez que el usuario inicio sesion.
-  // Es util para auditoria ligera o futuras estadisticas.
   lastLoginAt     DateTime?
-
-  // Fechas de creacion y ultima modificacion del registro.
   createdAt       DateTime        @default(now())
   updatedAt       DateTime        @updatedAt
-
-  // Relacion uno-a-muchos: un usuario puede tener muchas tareas.
   tasks           Task[]
-
-  // Relacion uno-a-uno: un usuario tiene un solo bloque de preferencias.
   preferences     UserPreference?
 
-  // Indice simple por fecha de creacion.
-  // Puede ayudar si luego se listan usuarios por alta reciente.
   @@index([createdAt])
 }
 
-// -----------------------------------------------------------------------------
-// MODEL: TASK
-// -----------------------------------------------------------------------------
-// Representa la unidad principal de trabajo del proyecto.
-// Cada tarea pertenece a un usuario y soporta papelera mediante soft delete.
 model Task {
-  // Identificador primario de la tarea.
-  id          String        @id @default(cuid())
-
-  // Foreign key hacia User.
-  // Indica a que usuario pertenece la tarea.
+  id          String       @id @default(cuid())
   userId      String
-
-  // Texto principal de la tarea.
-  // En esta primera fase actua como contenido central del item.
   text        String
-
-  // Tipo de tarea.
-  // Lo dejamos como string libre con default "general" porque en la app actual
-  // el tipo es flexible y no conviene cerrarlo demasiado pronto.
-  type        String        @default("general")
-
-  // Estado funcional de la tarea: pendiente, en progreso o completada.
-  status      TaskStatus    @default(PENDING)
-
-  // Prioridad funcional de la tarea.
-  priority    TaskPriority  @default(MEDIUM)
-
-  // Fecha real en la que la tarea fue completada.
-  // Es opcional porque no todas las tareas estaran completas.
+  type        String       @default("general")
+  status      TaskStatus   @default(PENDING)
+  priority    TaskPriority @default(MEDIUM)
   completedAt DateTime?
-
-  // Fecha en la que la tarea se mando a papelera.
-  // Si es null, la tarea sigue activa.
-  // Si tiene valor, la tarea esta en trash y puede restaurarse o eliminarse
-  // definitivamente despues.
   trashedAt   DateTime?
+  createdAt   DateTime     @default(now())
+  updatedAt   DateTime     @updatedAt
+  user        User         @relation(fields: [userId], references: [id], onDelete: Cascade)
 
-  // Fechas de creacion y actualizacion.
-  createdAt   DateTime      @default(now())
-  updatedAt   DateTime      @updatedAt
-
-  // Relacion muchos-a-uno hacia User.
-  // onDelete: Cascade implica que si algun dia se elimina un usuario de verdad,
-  // sus tareas tambien desaparecen.
-  user        User          @relation(fields: [userId], references: [id], onDelete: Cascade)
-
-  // Indices pensados para consultas muy comunes:
-  // - tareas por usuario
-  // - tareas activas o en papelera
-  // - filtros por estado
-  // - filtros por tipo
   @@index([userId])
   @@index([userId, trashedAt])
   @@index([userId, status])
@@ -162,38 +45,31 @@ model Task {
   @@index([createdAt])
 }
 
-// -----------------------------------------------------------------------------
-// MODEL: USER PREFERENCE
-// -----------------------------------------------------------------------------
-// Guarda configuraciones persistidas de UI y comportamiento visual del usuario.
-// Se separa de User para no mezclar identidad/autenticacion con preferencias
-// que pueden crecer bastante con el tiempo.
 model UserPreference {
-  // Identificador primario del bloque de preferencias.
-  id                  String    @id @default(cuid())
-
-  // Foreign key hacia User.
-  // Ademas es unico porque un usuario solo debe tener una fila de preferencias.
-  userId              String    @unique
-
-  // Tema visual principal del usuario.
-  theme               Theme     @default(DARK)
-
-  // Configuracion del toolbar.
-  // Aqui encajan cosas como orden de botones, visibilidad o toggles parecidos.
+  id                  String   @id @default(cuid())
+  userId              String   @unique
+  theme               Theme    @default(DARK)
   toolbarConfig       Json?
-
-  // Preferencias generales de filtros.
-  // Se deja como Json para no crear columnas prematuras para cada toggle.
   filterPreferences   Json?
-
-  // Preferencias del calendario o de otras zonas visuales relacionadas.
   calendarPreferences Json?
+  createdAt           DateTime @default(now())
+  updatedAt           DateTime @updatedAt
+  user                User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
 
-  // Fechas de creacion y actualizacion.
-  createdAt           DateTime  @default(now())
-  updatedAt           DateTime  @updatedAt
+enum TaskStatus {
+  PENDING
+  IN_PROGRESS
+  COMPLETED
+}
 
-  // Relacion uno-a-uno con User.
-  user                User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+enum TaskPriority {
+  LOW
+  MEDIUM
+  HIGH
+}
+
+enum Theme {
+  DARK
+  LIGHT
 }
