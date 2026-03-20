@@ -5,3 +5,6 @@ dist/
 frontend/.vite/
 frontend/.env
 frontend/.env.*
+backend/.agents/
+backend/skills-lock.json
+docs/ai/security-and-db-review.md
