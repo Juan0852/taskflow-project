@@ -1,131 +1,406 @@
 # TaskFlow Project
 
-TaskFlow Project es una app web estilo IDE para gestionar tareas con comandos de terminal y vista visual.
-El objetivo del proyecto es combinar productividad (CLI) con una interfaz tipo editor para crear, listar, actualizar y eliminar tareas de forma rápida.
+TaskFlow Project es una app de productividad estilo IDE para gestionar tareas desde una interfaz visual y una terminal integrada.
 
-## Caracteristicas
+El proyecto ya no es solo un frontend experimental: hoy vive como un monorepo con frontend, backend, autenticación por sesión, persistencia real de tareas, preferencias de usuario y una arquitectura bastante más sólida que la versión inicial.
 
-- Interfaz inspirada en un IDE (panel lateral, editor y terminal integrada).
-- Comandos de terminal para operar tareas (`/bitask ...`).
-- Formularios GUI para crear, editar, limpiar y visualizar tareas.
-- Vista `TaskController` y vista `KanbanBoard` compartiendo controles de trabajo.
-- Filtros por tipo, busqueda, ordenacion y calendario con seleccion de rango.
-- Personalizacion de toolbar, controles visibles y panel lateral.
-- Tema `dark/light` con persistencia en `localStorage`.
-- Splash inicial con expiracion temporal.
-- Estilos migrados a Tailwind CSS (con tokens semanticos de color).
+## Qué es hoy el proyecto
 
-## Stack Tecnologico
+BiTask mezcla dos formas de trabajar:
+
+- una experiencia visual tipo editor/IDE
+- y una capa de comandos para operar tareas desde terminal
+
+El objetivo es que un desarrollador pueda:
+
+- crear, editar y organizar tareas rápido
+- trabajar entre vista de lista y kanban
+- usar papelera real en vez de borrado destructivo inmediato
+- mantener preferencias persistidas por usuario
+- entrar como invitado o iniciar sesión para desbloquear persistencia completa
+
+## Estado actual
+
+Actualmente el proyecto incluye:
+
+- frontend separado en `/frontend`
+- backend separado en `/backend`
+- autenticación con sesiones y cookie `httpOnly`
+- registro e inicio de sesión con validaciones en frontend y backend
+- tareas persistidas por usuario en una base de datos real mediante backend
+- papelera de reciclaje real
+- acciones masivas conectadas al backend
+- preferencias persistidas en backend
+- modo invitado con límite de 2 tareas
+- sincronización de tareas de invitado al iniciar sesión
+- sin `localStorage` como fuente de verdad de la aplicación
+
+## Stack tecnológico
+
+### Frontend
 
 - Vite
 - Tailwind CSS
-- PostCSS + Autoprefixer
-- JavaScript (ES Modules)
+- PostCSS
+- JavaScript ES Modules
+- Zod
 
-## Estructura del Proyecto
+### Backend
+
+- Node.js
+- Express
+- Prisma
+- Zod
+- Argon2
+- express-session
+- CORS
+- dotenv
+
+## Arquitectura general
+
+### Frontend
+
+El frontend está organizado por capas y por features.
+
+- `domain/`
+  contratos y servicios del dominio frontend
+- `features/`
+  módulos de UI organizados por funcionalidad
+- `shared/`
+  utilidades y componentes reutilizables
+
+Además, la refactorización del frontend se apoyó en una separación práctica tipo:
+
+- `listeners`
+- `view`
+- `viewmodel`
+- `service`
+
+No se buscó una pureza académica rígida, sino una estructura mantenible y fácil de evolucionar hacia backend real.
+
+### Backend
+
+El backend está organizado por módulos:
+
+- `auth`
+- `tasks`
+- `preferences`
+- `users`
+
+Cada módulo sigue una separación por:
+
+- `routes`
+- `controller`
+- `service`
+- `repository`
+- `mapper`
+- `request/response DTOs`
+
+La validación estructural vive en DTOs con `zod`, y la validación de negocio vive en `services`.
+
+## Estructura del repositorio
 
 ```text
 taskflow-project/
-├─ index.html
+├─ backend/
+│  ├─ prisma/
+│  │  └─ schema.prisma
+│  ├─ src/
+│  │  ├─ app.js
+│  │  ├─ server.js
+│  │  ├─ config/
+│  │  ├─ lib/
+│  │  ├─ middlewares/
+│  │  ├─ security/
+│  │  └─ modules/
+│  │     ├─ auth/
+│  │     ├─ preferences/
+│  │     ├─ tasks/
+│  │     └─ users/
+│  ├─ README.md
+│  └─ TASKS_SUGGESTED_ENDPOINTS.md
+├─ frontend/
+│  ├─ public/
+│  │  └─ assets/
+│  ├─ src/
+│  │  └─ js/
+│  │     ├─ domain/
+│  │     │  ├─ auth/
+│  │     │  ├─ preferences/
+│  │     │  └─ tasks/
+│  │     ├─ features/
+│  │     │  ├─ auth/
+│  │     │  ├─ calendar-filter/
+│  │     │  ├─ kanban-board/
+│  │     │  ├─ task-list/
+│  │     │  ├─ task-panel/
+│  │     │  ├─ terminal/
+│  │     │  ├─ toolbar-personalization/
+│  │     │  └─ trash-bin/
+│  │     ├─ shared/
+│  │     ├─ app.js
+│  │     ├─ innerhtmls.js
+│  │     └─ ui-manager.js
+│  ├─ index.html
+│  ├─ FRONTEND_REFACTOR_GUIDE.md
+│  └─ package.json
 ├─ docs/
 │  └─ ai/
-├─ public/
-│  └─ assets/
-├─ src/
-│  ├─ main.js
-│  ├─ style.css
-│  └─ js/
-│     ├─ app.js
-│     ├─ innerhtmls.js
-│     ├─ ui-manager.js
-│     ├─ domain/
-│     │  └─ tasks/
-│     │     └─ task-service.js
-│     ├─ shared/
-│     │  ├─ storage-keys.js
-│     │  └─ storage-service.js
-│     └─ features/
-│        ├─ calendar-filter/
-│        ├─ kanban-board/
-│        ├─ task-list/
-│        ├─ task-panel/
-│        ├─ terminal/
-│        └─ toolbar-personalization/
-├─ tailwind.config.cjs
-├─ postcss.config.cjs
-└─ package.json
+└─ README.md
 ```
 
-## Instalacion
+## Modelos principales
+
+En la base de datos hoy existen estos modelos principales:
+
+- `User`
+- `Task`
+- `UserPreference`
+
+### User
+
+Guarda:
+
+- email
+- username
+- password hash
+- display name opcional
+- imagen de perfil opcional
+- estado activo
+- último login
+
+### Task
+
+Guarda:
+
+- texto
+- tipo
+- estado
+- prioridad
+- fecha de creación
+- fecha de actualización
+- fecha de completado
+- fecha de papelera (`trashedAt`)
+
+### UserPreference
+
+Guarda:
+
+- tema visual
+- configuración del toolbar
+- preferencias de filtros
+- preferencias del calendario
+- `lastSplashShownAt`
+
+## Flujo funcional principal
+
+### Autenticación
+
+- registro con email, username y contraseña
+- login con email o username
+- sesión persistida por cookie
+- dropdown de usuario cuando ya hay sesión
+- logout real
+
+### Tareas
+
+- crear tarea
+- editar tarea
+- listar tareas
+- filtrar por búsqueda
+- filtrar por rango de fechas
+- filtrar por tipo
+- ordenar
+- cambiar estado en kanban
+- mover a papelera
+- restaurar
+- vaciar papelera
+
+### Acciones masivas
+
+- completar todas
+- mandar completadas a papelera
+- mandar todas a papelera
+
+### Modo invitado
+
+- hasta 2 tareas sin iniciar sesión
+- si intenta crear más, se le pide iniciar sesión o registrarse
+- al iniciar sesión, esas tareas se sincronizan con backend
+
+## Endpoints principales
+
+### Auth
+
+- `GET /api/auth/status`
+- `POST /api/auth/register`
+- `POST /api/auth/login`
+- `GET /api/auth/me`
+- `POST /api/auth/logout`
+
+### Tasks
+
+- `GET /api/tasks/status`
+- `GET /api/tasks`
+- `GET /api/tasks/trash`
+- `GET /api/tasks/types`
+- `POST /api/tasks`
+- `PATCH /api/tasks/:id`
+- `PATCH /api/tasks/:id/trash`
+- `PATCH /api/tasks/:id/restore`
+- `PATCH /api/tasks/bulk/complete-all`
+- `PATCH /api/tasks/bulk/trash-completed`
+- `PATCH /api/tasks/bulk/trash-all`
+- `DELETE /api/tasks/:id`
+- `DELETE /api/tasks/bulk/delete-trash`
+
+### Preferences
+
+- `GET /api/preferences/status`
+- `GET /api/preferences`
+- `PATCH /api/preferences`
+
+## Variables de entorno
+
+### Frontend
+
+Archivo esperado:
+
+- `frontend/.env`
+
+Ejemplo:
+
+```env
+VITE_API_BASE_URL=http://localhost:3000/api
+```
+
+### Backend
+
+Archivo esperado:
+
+- `backend/.env`
+
+Variables principales:
+
+```env
+PORT=3000
+DATABASE_URL=postgresql://...
+SESSION_SECRET=super-secret-value
+CLIENT_URL=http://localhost:5173
+ENABLE_SWAGGER=true
+```
+
+## Instalación
+
+### 1. Instalar dependencias del frontend
 
 ```bash
+cd /Users/juanmontero/Documents/taskflow-project/frontend
 npm install
 ```
 
-## Desarrollo Local
+### 2. Instalar dependencias del backend
 
 ```bash
+cd /Users/juanmontero/Documents/taskflow-project/backend
+npm install
+```
+
+### 3. Configurar variables de entorno
+
+- crear `frontend/.env`
+- crear `backend/.env`
+
+### 4. Ejecutar migraciones de Prisma si hace falta
+
+```bash
+cd /Users/juanmontero/Documents/taskflow-project/backend
+npx prisma migrate dev
+```
+
+## Desarrollo local
+
+### Backend
+
+```bash
+cd /Users/juanmontero/Documents/taskflow-project/backend
 npm run dev
 ```
 
-Vite levantara el proyecto en `http://localhost:5173` (o el puerto disponible).
+Backend por defecto:
 
-## Build de Produccion
+- `http://localhost:3000`
+
+### Frontend
 
 ```bash
+cd /Users/juanmontero/Documents/taskflow-project/frontend
+npm run dev
+```
+
+Frontend por defecto:
+
+- `http://localhost:5173`
+
+## Build
+
+### Frontend
+
+```bash
+cd /Users/juanmontero/Documents/taskflow-project/frontend
 npm run build
 ```
 
-La salida queda en `dist/`.
-
-## Preview del Build
+### Backend
 
 ```bash
-npm run preview
+cd /Users/juanmontero/Documents/taskflow-project/backend
+npm run start
 ```
 
-## Comandos Disponibles (NPM Scripts)
+## Principios aplicados en el proyecto
 
-- `npm run dev`: inicia entorno de desarrollo.
-- `npm run build`: genera build optimizado.
-- `npm run preview`: sirve localmente el build de `dist`.
+- refactor incremental
+- separación de responsabilidades
+- validación en frontend y backend
+- DTOs con `zod`
+- arquitectura modular
+- persistencia real por usuario
+- UI y dominio desacoplados
+- transición controlada desde una versión local-first hacia una app completa
 
-## Flujo Funcional (Resumen)
+## Documentación interna útil
 
-1. El usuario interactua por GUI o por terminal.
-2. `app.js` inicializa tema, splash, dialogos y orquestacion general.
-3. `features/terminal` interpreta comandos y shortcuts, y delega acciones al resto del sistema.
-4. `domain/tasks/task-service.js` administra el estado de tareas, sus mutaciones y su persistencia.
-5. `shared/storage-service.js` centraliza el acceso a `localStorage` y `shared/storage-keys.js` define las claves persistidas.
-6. `ui-manager.js` coordina la interfaz principal y conecta vistas compartidas.
-7. Las features (`task-panel`, `task-list`, `calendar-filter`, `toolbar-personalization`, `kanban-board`) renderizan y gestionan partes concretas de la UI.
+- guía de refactor del frontend:
+  - [frontend/FRONTEND_REFACTOR_GUIDE.md](/Users/juanmontero/Documents/taskflow-project/frontend/FRONTEND_REFACTOR_GUIDE.md)
+- documento de endpoints sugeridos de tareas:
+  - [backend/TASKS_SUGGESTED_ENDPOINTS.md](/Users/juanmontero/Documents/taskflow-project/backend/TASKS_SUGGESTED_ENDPOINTS.md)
+- documentación del backend:
+  - [backend/README.md](/Users/juanmontero/Documents/taskflow-project/backend/README.md)
 
-## Principios de Ingenieria Aplicados
+## Lo que viene después
 
-- `DRY (Don't Repeat Yourself)`: se redujo duplicacion de estilos y referencias, centralizando tokens semanticos y reutilizando utilidades.
-- `Responsabilidad Unica (SRP)`: cada modulo tiene un rol mas claro (`domain`, `shared` y `features`).
-- `Mantenibilidad`: metodos pequeños, responsabilidades bien delimitadas y nombres de constantes/funciones mas expresivos.
-- `Separation of Concerns`: logica de dominio, render/UI y orquestacion estan separadas para facilitar evolucion y debugging.
-- `Feature-based organization`: la aplicacion se reorganizo por areas funcionales en lugar de crecer con archivos globales cada vez mas grandes.
-- `Encapsulacion de persistencia`: el acceso a `localStorage` ya no queda regado entre muchas funciones, sino centralizado y con claves explicitas.
-- `Arquitectura hibrida MVC/MVVM`: varias features se separaron en `controller`, `view` y `viewmodel`, manteniendo una aproximacion practica en lugar de academica pura.
-- `Refactor guiado por iteracion`: gran parte de la reorganizacion se hizo en pequenos pasos, validando comportamiento y build tras cada cambio importante.
-- `Refactor incremental`: ya se tenia una base completa en CSS tradicional, pero se decidio migrar a Tailwind. Por eso el proceso se hizo con debugging paso a paso, validando modulo por modulo para evitar regresiones. Despues de bastantes cafes, se logro estabilizar toda la migracion.
+Algunas ideas ya identificadas para siguientes fases:
 
-## Flujo de Ramas (GitFlow)
+- OAuth con Google y GitHub
+- checks en tiempo real para disponibilidad de username/email
+- restauración múltiple desde papelera
+- más QA y pulido visual
+- endurecimiento adicional de seguridad y uploads
 
-- Durante el proyecto se siguio enfoque `GitFlow`.
-- La rama principal de trabajo fue `feature/develop`.
-- `main` queda como rama a proteger para merges mas estables.
-- Tambien se utilizaron ramas puntuales de `hotfix` cuando fue necesario corregir problemas concretos sin mezclar todo el trabajo.
-- Se mantuvo la disciplina de cambios incrementales y commits tematicos aun cuando hubo refactors grandes.
+## Estado del proyecto
 
-## Estado Actual
+El proyecto ya está en una fase muy distinta a la inicial.
 
-- Migracion a Vite completada.
-- Migracion de estilos a Tailwind completada (sin preflight custom extra).
-- Tokens de color semanticos activos para facilitar mantenimiento del tema.
-- Arquitectura reorganizada por `features`, `domain` y `shared`.
-- `TaskController` y `KanbanBoard` activos dentro de la interfaz.
-- Terminal modularizada con comandos, shortcuts y controlador propio.
-- Documentacion de IA ampliada en `docs/ai`, incluyendo comparativas, workflow y experimentos.
+Pasó de ser una interfaz local con persistencia de navegador a una aplicación con:
+
+- backend real
+- sesiones
+- persistencia real en base de datos
+- DTOs
+- preferencias persistidas
+- guest mode controlado
+- papelera real
+- y una arquitectura mucho más mantenible
+
+Después de bastante refactor, bastante integración y bastante café, ya hay una base muy seria sobre la que seguir construyendo.
